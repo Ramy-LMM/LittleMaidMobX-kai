@@ -1,0 +1,65 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+        maven {
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+    }
+}
+
+apply plugin: 'forge'
+
+version = "0.0.10"
+group= "littleMaidMobX" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "littleMaidMobX"
+
+compileJava.options.encoding = 'UTF-8'
+
+minecraft {
+    version = "1.7.10-10.13.4.1481-1.7.10"
+    runDir = "eclipse"
+}
+
+repositories {
+}
+
+dependencies {
+}
+
+processResources
+{
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'                
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+        
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
+
+jar {
+	manifest {
+		attributes 'FMLCorePlugin': 'mmmlibx.lib.multiModel.MMMLoader.MMMCoremod'
+		attributes 'FMLCorePluginContainsFMLMod': 'mmmlibx.lib.MMMLib'
+	}
+}
+
+runClient {
+    jvmArgs = ['-Dfml.coreMods.load=mmmlibx.lib.multiModel.MMMLoader.MMMCoremod']
+}
+
+runServer {
+    jvmArgs = ['-Dfml.coreMods.load=mmmlibx.lib.multiModel.MMMLoader.MMMCoremod']
+}

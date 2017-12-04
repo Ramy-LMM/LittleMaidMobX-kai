@@ -1,0 +1,9 @@
+*.zip
+*.class
+/bin
+/build
+/eclipse
+.gradle/
+.settings/
+.classpath
+.project
