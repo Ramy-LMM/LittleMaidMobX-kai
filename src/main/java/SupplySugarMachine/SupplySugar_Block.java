@@ -18,6 +18,7 @@ import net.minecraft.nbt.NBTTagString;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IIcon;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import cpw.mods.fml.relauncher.Side;
@@ -248,6 +249,23 @@ public class SupplySugar_Block extends BlockContainer {
 	public boolean hasTileEntity()
     {
         return true;
+    }
+
+	public boolean canProvidePower()
+	{
+		return true;
+	}
+
+	@Override
+    public int isProvidingWeakPower(IBlockAccess p_149748_1_, int px, int py, int pz, int side)
+    {
+		TileEntity tile = p_149748_1_.getTileEntity(px, py, pz);
+		if(tile instanceof TileEntitySupplySugar) {
+			int count = ((TileEntitySupplySugar)tile).getSugarSize();
+			int level = count / 320;
+			return level;
+		}
+		return 0;
     }
 
 	@Override
