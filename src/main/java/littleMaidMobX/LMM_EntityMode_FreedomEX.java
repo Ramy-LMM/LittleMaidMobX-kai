@@ -420,6 +420,7 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 			if (searchedChestList.indexOf(i) == -1) {
 				double length = owner.getDistanceSq(chestPosition[i][0], chestPosition[i][1], chestPosition[i][2]);
 				if (length < minLength) {
+					minLength = length;
 					index = i;
 				}
 			}
