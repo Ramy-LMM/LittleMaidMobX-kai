@@ -24,7 +24,6 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
-import net.minecraft.world.World;
 import scala.util.Random;
 import SupplySugarMachine.TileEntitySupplySugar;
 
@@ -35,15 +34,15 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 	private int[][] chestPosition = null;
 	private int chestPositionIndex = -1;
 	private int[] startSearchPos = null;
-	private List<Integer> searchedChestList = new ArrayList<Integer>();
 	private boolean isMoving = false;
 	private boolean isSugarSupplyMachine = false;
 	private int[] prePos = null;
-	private int freezeTime = 0;
+	private int freezeSSBTime = 0;		//砂糖供給機へワープするまでの時間
+	private int freezeStartPosTime = 0;	//砂糖供給機を検索し始めた場所へワープするまでの時間
 	private final Random rand = new Random();
 	private int sugarCount = 0;
-	private int updateSugarTime = 30; //30tick(1.5s)
-	private int attackTime = 0;
+	private int updateSugarTime = 30; 	//メイドさんの砂糖量を更新するまでの時間
+	private int attackTime = 0;			//怒りモードの継続時間
 	private double[] attackPoint = null;
 	private String attackPlayerName = null;
 	//private int heartTime = 30;
@@ -62,8 +61,6 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 		modeSearchChest = false;
 		isMoving = false;
 		owner.aiWander.setEnable(true);
-		//searchedChestList.clear();
-		searchedChestList.clear();
 	}
 
 	@Override
@@ -114,7 +111,6 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 							}
 							nbt.setTag("pages", tagList);
 							itemstack.setTagCompound(nbt);
-
 							chestPositionIndex = 0;
 							prePos = new int[]{chestPosition[0][0], chestPosition[0][1], chestPosition[0][2]};
 							//owner.worldObj.getPlayerEntityByName(owner.getMaidMaster()).addChatMessage(new ChatComponentText("position: "+chestPosition[0]+", "+chestPosition[1]+", "+chestPosition[2]));
@@ -160,16 +156,6 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 		return false;
 	}
 
-	private int containsPosition(List<int[]> list, int[] checkPos) {
-		for (int i = 0; i < list.size(); i++) {
-			int[] pos = list.get(i);
-			if ((pos[0] == pos[0]) && (pos[1] == pos[1]) && (pos[2] == pos[2])) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
 	private void jumpToPosition(int px, int pz) {
 		//LMM_EntityAIJumpToMaster.javaから引用
 		int i = MathHelper.floor_double(px) - 2;
@@ -205,14 +191,16 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 		if (isSugarSupplyMachine && modeSearchChest) {
 			int[] pos = {chestPosition[chestPositionIndex][0], chestPosition[chestPositionIndex][1], chestPosition[chestPositionIndex][2]};
 			double distance = owner.getDistance(pos[0], pos[1], pos[2]);//.getDistanceTilePos();
-			//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("distance: " + distance));
+			//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("checkBlock distance: " + distance));
 			if (distance < 3.0) {
 				TileEntitySupplySugar tile = (TileEntitySupplySugar)owner.worldObj.getTileEntity(pos[0], pos[1], pos[2]);
 				if (tile.getSugarSize() == 0) {
 					//砂糖供給機が空だったら、次に距離の短い砂糖供給機へと向かう
 					chestPositionIndex = searchNearestChest();
-					//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("searchedChestList: " + searchedChestList.size()));
-					owner.getNavigator().tryMoveToXYZ(chestPosition[chestPositionIndex][0], chestPosition[chestPositionIndex][1], chestPosition[chestPositionIndex][2], 1.0);
+					owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("checkBlock 砂糖供給機が空: "));
+					tile = (TileEntitySupplySugar)owner.worldObj.getTileEntity(pos[0], pos[1], pos[2]);
+					boolean bpath = MMM_Helper.setPathToTile(owner, tile, false);
+					isMoving = true;
 				}
 				else {
 					isMoving = false;
@@ -227,12 +215,12 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 			else {
 				PathNavigate lpn = owner.getNavigator();
 				boolean bpath = lpn.noPath();
-				if ((modeSearchChest && isMoving) && bpath) {
+				if (modeSearchChest && isMoving && bpath) {
 					int x = chestPosition[chestPositionIndex][0];
 					int y = chestPosition[chestPositionIndex][1];
 					int z = chestPosition[chestPositionIndex][2];
-					double aspect = 20.0 / distance;
 					if (distance > 20.0) {
+						double aspect = 20.0 / distance;
 						x = (int) (owner.posX - (owner.posX - chestPosition[chestPositionIndex][0]) * aspect);
 						y = (int) (owner.posY - (owner.posY - chestPosition[chestPositionIndex][1]) * aspect);
 						z = (int) (owner.posZ - (owner.posZ - chestPosition[chestPositionIndex][2]) * aspect);
@@ -244,13 +232,13 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 					if ((prePos[0] == x) && (prePos[1] == y) && (prePos[2] == z)) {
 						//long time = System.currentTimeMillis() - startTime;
 						//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("Time: "+ freezeTime));
-						if (freezeTime == 0) {
+						if (freezeSSBTime == 0) {
 							isJump = true;
 						}
 					}
 					else {
 						prePos = new int[]{x, y, z};
-						freezeTime = 1200; //60sec後
+						freezeSSBTime = 1200; //60sec後
 						//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("distance: " + owner.getDistance(x, y, z)+", aspect: "+aspect));
 						//TileEntity tile = owner.worldObj.getTileEntity(chestPosition[0], chestPosition[1], chestPosition[2]);
 						//MMM_Helper.setPathToTile(owner, tile, false);
@@ -284,17 +272,20 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 		}
 
 		boolean bpath = owner.getNavigator().noPath();
-		//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("moveStartSearchPosition: "+ bpath));
+		//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("moveStartSearchPosition modeSearchChest: "+modeSearchChest+", isMoving: "+isMoving));
 		if (bpath) {
+			if (startSearchPos == null) {
+				startSearchPos = new int[]{(int)owner.posX, (int)owner.posY, (int)owner.posZ};
+			}
 			int x = startSearchPos[0];
 			int y = startSearchPos[1];
 			int z = startSearchPos[2];
 			double distance = owner.getDistance(x, y, z);
 			double aspect = 20.0 / distance;
 			if (distance > 20.0) {
-				x = (int) (owner.posX - (owner.posX - startSearchPos[0]) * aspect);
-				y = (int) (owner.posY - (owner.posY - startSearchPos[1]) * aspect);
-				z = (int) (owner.posZ - (owner.posZ - startSearchPos[2]) * aspect);
+				x = (int) (owner.posX - ((owner.posX - startSearchPos[0]) * aspect));
+				y = (int) (owner.posY - ((owner.posY - startSearchPos[1]) * aspect));
+				z = (int) (owner.posZ - ((owner.posZ - startSearchPos[2]) * aspect));
 			}
 			else {
 				owner.getNavigator().tryMoveToXYZ(x, y, z, 1.0);	//検索を始めた場所に戻る
@@ -303,21 +294,20 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 			//メイドさんが動けない場合、一定時間経過後にワープさせる
 			boolean isJump = false;
 			if ((prePos[0] == x) && (prePos[1] == y) && (prePos[2] == z)) {
-				//long time = System.currentTimeMillis() - startTime;
-				owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("Time: "+ freezeTime));
-				if (freezeTime == 0) {
+				//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("Time: "+ freezeTime));
+				if (freezeStartPosTime == 0) {
 					isJump = true;
 				}
 			}
 			else {
 				prePos = new int[]{x, y, z};
-				freezeTime = 1200; //60sec後
+				freezeStartPosTime = 1200; //60sec後
 				owner.getNavigator().tryMoveToXYZ(x, y, z, 1.0);
 			}
 
 			if (isJump) {
 				jumpToPosition(startSearchPos[0], startSearchPos[2]);
-				freezeTime = 0;
+				freezeStartPosTime = 0;
 			}
 		}
 	}
@@ -325,10 +315,6 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 	private void outputNoneSugarMessage(TileEntitySupplySugar tile, int px, int py, int pz) {
 		if (tile.getSugarSize() != 0) return;
 
-		if (searchedChestList.indexOf(chestPositionIndex) == -1) {
-			searchedChestList.add(chestPositionIndex);
-			//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("探索済み追加: "+chestPositionIndex));
-		}
 		if(tile.IsOuputNoneSugarMessage == false) {
 			//tile.renderMarker(px, py, pz);
 			String text = "";
@@ -338,8 +324,12 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 			else {
 				text = tile.CustomName + "の砂糖供給機の中身が空です。";
 			}
-			owner.getMaidMasterEntity().addChatMessage(new ChatComponentText(text));
 			tile.IsOuputNoneSugarMessage = true;
+			owner.getMaidMasterEntity().addChatMessage(new ChatComponentText(text));
+			/*tile = (TileEntitySupplySugar)owner.worldObj.getTileEntity(chestPosition[chestPositionIndex][0], chestPosition[chestPositionIndex][1], chestPosition[chestPositionIndex][2]);
+			chestPositionIndex = searchNearestChest();
+			boolean bpath = MMM_Helper.setPathToTile(owner, tile, false);
+			isMoving = true;*/
 		}
 	}
 
@@ -369,12 +359,12 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 		if ((sugarCount >= 320) || (owner.maidInventory.getFirstEmptyStack() == -1)) {
 			//owner.getNavigator().tryMoveToXYZ(startSearchPos[0], startSearchPos[1], startSearchPos[2], 1.0);	//検索を始めた場所に戻る
 			//randomMove(px, py, pz);	//ランダムに移動
-			owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("お腹いっぱい: "+startSearchPos[0]+", "+startSearchPos[1]+", "+startSearchPos[2]));
+			//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("お腹いっぱい: "+startSearchPos[0]+", "+startSearchPos[1]+", "+startSearchPos[2]));
 			owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("tile位置: "+px+", "+py+", "+pz));
 			//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("お腹いっぱい"));
 			clearMy();
 			moveStartSearchPosition();
-			return false;
+			return true;
 		}
 
 		if (isInTheSkirt) {
@@ -382,6 +372,11 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 			owner.setSwing(2, LMM_EnumSound.Null);
 			return true;
 		}
+		/*else {
+			chestPositionIndex = searchNearestChest();
+			tile = (TileEntitySupplySugar)owner.worldObj.getTileEntity(chestPosition[chestPositionIndex][0], chestPosition[chestPositionIndex][1], chestPosition[chestPositionIndex][2]);
+			boolean bpath = MMM_Helper.setPathToTile(owner, tile, false);
+		}*/
 
 		//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("no sugar in chest."));
 
@@ -390,21 +385,18 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 
 	private boolean chestAction(int px, int py, int pz) {
 		TileEntity tile = owner.worldObj.getTileEntity(px, py, pz);
-		if (tile instanceof TileEntitySupplySugar) {
+		if ((tile instanceof TileEntitySupplySugar) && ((TileEntitySupplySugar)tile).getSugarSize() != 0) {
 			// ブロック系のチェスト
 			// 使用直前に可視判定
 			if (MMM_Helper.canBlockBeSeen(owner, px, py, pz, false, true, false)) {
 				owner.setWorking(true);
 				return getSugarAtSugarSupplyMachine(px, py, pz);
 			} else {
-				//owner.worldObj.getPlayerEntityByName(owner.getMaidMaster()).addChatMessage(new ChatComponentText("missing chest"));
 				// 見失った
 				clearMy();
 			}
-		} else {
-			// 想定外のインベントリ
-			clearMy();
 		}
+		owner.worldObj.getPlayerEntityByName(owner.getMaidMaster()).addChatMessage(new ChatComponentText("砂糖供給機["+chestPositionIndex+"]の砂糖量: "+((TileEntitySupplySugar)tile).getSugarSize()));
 		return false;
 	}
 
@@ -414,18 +406,20 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 	}
 
 	private int searchNearestChest() {
-		int index = 0;
+		int minIndex = 0;
 		double minLength = Double.MAX_VALUE;
 		for (int i = 0; i < chestPosition.length; i++) {
-			if (searchedChestList.indexOf(i) == -1) {
+			TileEntitySupplySugar tile = (TileEntitySupplySugar)owner.worldObj.getTileEntity(chestPosition[i][0], chestPosition[i][1], chestPosition[i][2]);
+			if (tile.getSugarSize() != 0) {
 				double length = owner.getDistanceSq(chestPosition[i][0], chestPosition[i][1], chestPosition[i][2]);
+				owner.worldObj.getPlayerEntityByName(owner.getMaidMaster()).addChatMessage(new ChatComponentText("NearestChest["+i+"]: "+length));
 				if (length < minLength) {
 					minLength = length;
-					index = i;
+					minIndex = i;
 				}
 			}
 		}
-		return index;
+		return minIndex;
 	}
 
 	@Override
@@ -439,7 +433,7 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 				if (!modeSearchChest || !isMoving) {
 					//owner.worldObj.getPlayerEntityByName(owner.getMaidMaster()).addChatMessage(new ChatComponentText("isSearchBlock Sugar: "+Integer.toString(countOfSugar())+" "+chestPosition[0]+", "+chestPosition[1]+", "+chestPosition[2]));
 					//owner.worldObj.getPlayerEntityByName(owner.getMaidMaster()).addChatMessage(new ChatComponentText("searchedChestList: "+searchedChestList.size()));
-					owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("お砂糖少ない: modeSearchChest: "));
+					//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("お砂糖少ない: modeSearchChest: "));
 					owner.aiWander.setEnable(false);
 					modeSearchChest = true; // 砂糖が1スタック未満だったらチェスト探索モード
 					isMoving = true; //移動中
@@ -451,12 +445,23 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 					TileEntity tile = owner.worldObj.getTileEntity(chestPosition[chestPositionIndex][0], chestPosition[chestPositionIndex][1], chestPosition[chestPositionIndex][2]);
 					boolean bpath = MMM_Helper.setPathToTile(owner, tile, false);
 					//boolean bpath = owner.getNavigator().tryMoveToXYZ(chestPosition[0], chestPosition[1], chestPosition[2], 1.0);
-					owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("お砂糖少ない: modeSearchChest: "+modeSearchChest+", isMoving: "+isMoving+", bpath: "+bpath));
+					owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("お砂糖少ない: modeSearchChest: "+modeSearchChest+", isMoving: "+isMoving+", bpath: "+bpath+", chestPositionIndex: "+chestPositionIndex));
 					return bpath;
 				}
 			}
 			else {
-				modeSearchChest = false;
+				if (isOverStackSugar(5)) {
+					//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("お砂糖少なくない"));
+					modeSearchChest = false;
+				}
+				else {
+					//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("5スタックに達していない： "+this.sugarCount));
+					TileEntity tile = owner.worldObj.getTileEntity(chestPosition[chestPositionIndex][0], chestPosition[chestPositionIndex][1], chestPosition[chestPositionIndex][2]);
+					boolean bpath = MMM_Helper.setPathToTile(owner, tile, false);
+					modeSearchChest = true;
+					isMoving = true;
+					return bpath;
+				}
 			}
 			if (0 < coolTime) {
 				return false; // クールタイム中は立ち止まる
@@ -468,7 +473,7 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 	@Override
 	public boolean shouldBlock(int pMode) {
 		if (isSugarSupplyMachine) {
-			if (modeSearchChest || isMoving) {
+			if (modeSearchChest || !isMoving) {
 				//TileEntity tile = owner.worldObj.getTileEntity(chestPosition[0], chestPosition[1], chestPosition[2]);
 				//boolean bpath = MMM_Helper.setPathToTile(owner, tile, false);
 				//boolean bpath = owner.getNavigator().tryMoveToXYZ(chestPosition[0], chestPosition[1], chestPosition[2], 1.0);
@@ -476,7 +481,7 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 				//modeSearchChest = true;
 				PathNavigate lpn = owner.getNavigator();
 				boolean bpath = lpn.noPath();
-				owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("shouldBlock: "+bpath));
+				//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("shouldBlock: "+bpath));
 				return !bpath;
 			}
 		}
@@ -486,37 +491,56 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 	@Override
 	public boolean executeBlock(int pMode, int px, int py, int pz) {
 		if (isSugarSupplyMachine) {
-			owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("executeBlock SearchChest: "+modeSearchChest));
+			owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("executeBlock SearchChest: "+modeSearchChest+", 砂糖量： "+this.sugarCount));
 			if (modeSearchChest) {
 				if (isOverStackSugar(5) || (owner.maidInventory.getFirstEmptyStack() == -1)) {
-					//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("executeBlock:５個以上かインベントリいっぱい"));
+					owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("executeBlock:５個以上かインベントリいっぱい"));
 					isMoving = false;
-					modeSearchChest = false;
-					owner.aiWander.setEnable(true);
-					owner.setWorking(false);
-					searchedChestList.clear();
+					clearMy();
 				}
 				else {
 					//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("executeBlock:それ以外"));
-					World w = owner.worldObj;
 					boolean result = chestAction(chestPosition[chestPositionIndex][0], chestPosition[chestPositionIndex][1], chestPosition[chestPositionIndex][2]);
-					owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("executeBlock: "+result));
+					owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("executeBlock chestAction: "+result+", modeSearchChest: "+modeSearchChest+", isMoving: "+isMoving));
 					if (result) {
 						coolTime = 10;
+					}
+					else {
+						/*chestPositionIndex = searchNearestChest();
+						TileEntity tile = owner.worldObj.getTileEntity(chestPosition[chestPositionIndex][0], chestPosition[chestPositionIndex][1], chestPosition[chestPositionIndex][2]);
+						boolean bpath = MMM_Helper.setPathToTile(owner, tile, false);
+						isMoving = true;*/
 					}
 					return result;
 				}
 			}
 			else {
-				if (isOverStackSugar(1)) {
-					owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("executeBlock:５個以上かインベントリいっぱい"));
-					//owner.getNavigator().tryMoveToXYZ(startSearchPos[0], startSearchPos[1], startSearchPos[2], 1.0);	//検索を始めた場所に戻る
+				if (isOverStackSugar(5)) {
+					owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("executeBlock:５個以上"));
 					isMoving = false;
-					modeSearchChest = false;
-					owner.aiWander.setEnable(true);
-					owner.setWorking(false);
-					searchedChestList.clear();
+					clearMy();
 				}
+				else {
+					owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("executeBlock:５個未満"));
+				}
+				/*else {
+					if (owner.maidInventory.getFirstEmptyStack() == -1) {
+						owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("executeBlock:インベントリいっぱい"));
+						isMoving = false;
+						modeSearchChest = false;
+						owner.aiWander.setEnable(true);
+						owner.setWorking(false);
+						searchedChestList.clear();
+					}
+					else {
+						boolean result = chestAction(chestPosition[chestPositionIndex][0], chestPosition[chestPositionIndex][1], chestPosition[chestPositionIndex][2]);
+						owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("5以下で executeBlock chestAction: "+result));
+						if (result) {
+							coolTime = 10;
+						}
+						return result;
+					}
+				}*/
 			}
 		}
 		return false;
@@ -525,10 +549,10 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 	@Override
 	public boolean outrangeBlock(int pMode, int pX, int pY, int pZ) {
 		if (isSugarSupplyMachine) {
-			owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("outrangeBlock: modeSearchChest: "+modeSearchChest+", isMoving: "+isMoving+", wait: "+!owner.isMaidWaitEx()+", "+pX+", "+pY+", "+pZ));
 			if (modeSearchChest && !isMoving) {
 				return true;
 			}
+			//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("outrangeBlock: modeSearchChest: "+modeSearchChest+", isMoving: "+isMoving+", wait: "+!owner.isMaidWaitEx()+", "+pX+", "+pY+", "+pZ));
 			boolean result = false;
 			if (!owner.isMaidWaitEx()) {
 				//result = owner.getNavigator().tryMoveToXYZ(pX, pY, pZ, 1.0);
@@ -624,8 +648,11 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 		if (0 < coolTime) {
 			coolTime--;
 		}
-		if (0 < freezeTime) {
-			freezeTime--;
+		if (0 < freezeSSBTime) {
+			freezeSSBTime--;
+		}
+		if (0 < freezeStartPosTime) {
+			freezeStartPosTime--;
 			moveStartSearchPosition();
 		}
 		if (0 < updateSugarTime) {
