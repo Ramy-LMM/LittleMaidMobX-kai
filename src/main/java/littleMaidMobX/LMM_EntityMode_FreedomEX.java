@@ -196,7 +196,7 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 				TileEntitySupplySugar tile = (TileEntitySupplySugar)owner.worldObj.getTileEntity(pos[0], pos[1], pos[2]);
 				if (tile.getSugarSize() == 0) {
 					//砂糖供給機が空だったら、次に距離の短い砂糖供給機へと向かう
-					chestPositionIndex = searchNearestChest();
+				 	chestPositionIndex = searchNearestChest();
 					owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("checkBlock 砂糖供給機が空: "));
 					tile = (TileEntitySupplySugar)owner.worldObj.getTileEntity(pos[0], pos[1], pos[2]);
 					boolean bpath = MMM_Helper.setPathToTile(owner, tile, false);
@@ -553,11 +553,8 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 				return true;
 			}
 			//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("outrangeBlock: modeSearchChest: "+modeSearchChest+", isMoving: "+isMoving+", wait: "+!owner.isMaidWaitEx()+", "+pX+", "+pY+", "+pZ));
-			boolean result = false;
-			if (!owner.isMaidWaitEx()) {
-				//result = owner.getNavigator().tryMoveToXYZ(pX, pY, pZ, 1.0);
-			}
-			return result;
+
+			return false;
 		}
 		return false;
 	}
@@ -660,6 +657,10 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 			if (updateSugarTime == 0) {
 				updateSugarTime = 30;
 				sugarCount = countOfSugar();
+				if(isOneStackSugar() && owner.isMaidWaitEx()) {
+					owner.setMaidWait(false);
+					owner.playSound("random.pop");
+				}
 			}
 		}
 		if (pMode == mmode_FreedomEX) {
