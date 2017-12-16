@@ -197,7 +197,7 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 				if (tile.getSugarSize() == 0) {
 					//砂糖供給機が空だったら、次に距離の短い砂糖供給機へと向かう
 				 	chestPositionIndex = searchNearestChest();
-					owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("checkBlock 砂糖供給機が空: "));
+					//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("checkBlock 砂糖供給機が空: "));
 					tile = (TileEntitySupplySugar)owner.worldObj.getTileEntity(pos[0], pos[1], pos[2]);
 					boolean bpath = MMM_Helper.setPathToTile(owner, tile, false);
 					isMoving = true;
@@ -339,19 +339,20 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 		boolean isInTheSkirt = false;
 		//IInventory inventory = ((IInventory)tile);
 		for (int i = 0; i < tile.getSizeInventory(); i++) {
-			//ItemStack item = tile.getStackInSlot(i);
-			ItemStack item = tile.decrStackSize(0, 0);
-			if ((sugarCount < 320) && (item != null) && (item.getItem() == Items.sugar)) {
-				if (((sugarCount + item.stackSize) >= 320)) {
-					item.stackSize -= (sugarCount + item.stackSize) - 320;
-					tile.setInventorySlotContents(i, item);
+			ItemStack item = tile.decrStackSize(i, 0);
+			if (item == null) {
+				tile.addSugarSize(0);
+			}
+			else {
+				if ((sugarCount < 320) && (item.getItem() == Items.sugar)) {
+					if ((sugarCount + item.stackSize) > 320) {
+						item.stackSize -= (sugarCount + item.stackSize) - 320;
+						tile.addSugarSize(item.stackSize);
+					}
+					sugarCount += item.stackSize;
+					owner.maidInventory.addItemStackToInventory(item);
+					isInTheSkirt = true;
 				}
-				else {
-					tile.setInventorySlotContents(i, null);
-				}
-				sugarCount += item.stackSize;
-				owner.maidInventory.addItemStackToInventory(item);
-				isInTheSkirt = true;
 			}
 			outputNoneSugarMessage(tile, px, py, pz);
 		}
@@ -372,11 +373,6 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 			owner.setSwing(2, LMM_EnumSound.Null);
 			return true;
 		}
-		/*else {
-			chestPositionIndex = searchNearestChest();
-			tile = (TileEntitySupplySugar)owner.worldObj.getTileEntity(chestPosition[chestPositionIndex][0], chestPosition[chestPositionIndex][1], chestPosition[chestPositionIndex][2]);
-			boolean bpath = MMM_Helper.setPathToTile(owner, tile, false);
-		}*/
 
 		//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("no sugar in chest."));
 
@@ -659,7 +655,6 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 				sugarCount = countOfSugar();
 				if(isOneStackSugar() && owner.isMaidWaitEx()) {
 					owner.setMaidWait(false);
-					owner.playSound("random.pop");
 				}
 			}
 		}

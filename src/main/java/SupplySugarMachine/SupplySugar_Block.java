@@ -114,23 +114,17 @@ public class SupplySugar_Block extends BlockContainer {
 	@Override
 	public void onBlockPlacedBy(World p_149689_1_, int p_149689_2_, int p_149689_3_, int p_149689_4_, EntityLivingBase p_149689_5_, ItemStack p_149689_6_) {
 		if (!p_149689_1_.isRemote) {
-			//p_149689_1_.setTileEntity(p_149689_2_, p_149689_3_, p_149689_4_, tileentitysupply);
 			TileEntitySupplySugar tile = (TileEntitySupplySugar)p_149689_1_.getTileEntity(p_149689_2_, p_149689_3_, p_149689_4_);
-			//p_149689_1_.getPlayerEntityByName("aoyanagiyuu").addChatMessage(new ChatComponentText("tileentitysupply： " + tileentitysupply));
 			if (tile == null) {
 				tile = new TileEntitySupplySugar();
-				//tileentitysupply.count = sugarNumber;
 			}
-			//p_149689_1_.getPlayerEntityByName("aoyanagiyuu").addChatMessage(new ChatComponentText("tile entity： "+tileentitysupply));
 			if (p_149689_6_.hasTagCompound()) {
 				NBTTagCompound nbt = p_149689_6_.getTagCompound();
-				//tile.SugarNumber = nbt.getLong("sugar");
 				tile.setSugarSize(nbt.getInteger("sugar"));
 			}
 			else {
 				tile.setSugarSize(1);
 			}
-			//p_149689_1_.getPlayerEntityByName("aoyanagiyuu").addChatMessage(new ChatComponentText("設置ブロック 砂糖数："+sugarNumber));
 		}
 	}
 
@@ -141,35 +135,15 @@ public class SupplySugar_Block extends BlockContainer {
     }
 
     @Override
-    public void harvestBlock(World world, EntityPlayer entityplayer, int x, int y, int z, int l) {
-    	/*if (!world.isRemote) {
-    		TileEntitySupply tileentitysupply = (TileEntitySupply)world.getTileEntity(x, y, z);
-    		System.out.println("tileentitysupply: "+world.getTileEntity(x, y, z) +", "+x+", "+y+", "+z);
-    		ItemStack items = new ItemStack(this, 1);
-    		NBTTagCompound nbt = new NBTTagCompound();
-    		//nbt.setLong("sugar", tileentitysupply.SugarNumber);
-    		items.setTagCompound(nbt);
-    		EntityItem eItem = new EntityItem(world, x, y, z, items);
-    		eItem.dropItem(items.getItem(), 1);
-    		//p_149749_1_.getPlayerEntityByName("aoyanagiyuu").addChatMessage(new ChatComponentText("壊した、お前が"));
-    	}*/
-    }
-
-    @Override
     public void breakBlock(World world, int x, int y, int z, Block p_149749_5_, int p_149749_6_) {
     	if (!world.isRemote) {
-    		//System.out.println("breakBlock: "+world.getTileEntity(x, y, z) +", "+x+", "+y+", "+z);
     		TileEntitySupplySugar tile = (TileEntitySupplySugar)world.getTileEntity(x, y, z);
-    		//System.out.println("tileentitysupply: "+world.getTileEntity(x, y, z) +", "+x+", "+y+", "+z);
     		ItemStack items = new ItemStack(this, 1);
     		NBTTagCompound nbt = new NBTTagCompound();
-    		//nbt.setLong("sugar", tile.SugarNumber);
     		nbt.setInteger("sugar", tile.getSugarSize());
     		items.setTagCompound(nbt);
     		EntityItem eItem = new EntityItem(world, x, y, z, items);
-    		//eItem.dropItem(items.getItem(), 1);
     		world.spawnEntityInWorld(eItem);
-    		//p_149749_1_.getPlayerEntityByName("aoyanagiyuu").addChatMessage(new ChatComponentText("壊した、お前が"));
     	}
     }
 
@@ -181,9 +155,6 @@ public class SupplySugar_Block extends BlockContainer {
 		TileEntity tile = world.getTileEntity(x, y, z);
 		if (item != null) {
 			if (item.getItem() == Items.book) {
-				//IInventory inventory = ((BlockChest)block).func_149951_m(event.world, event.x, event.y, event.z);
-				//IInventory inventory = (IInventory) tile;
-				//player.addChatMessage(new ChatComponentText("sugar info: "+inventory));
 				getChestPositionWithNBT(player, x, y, z);
 				item.stackSize = item.stackSize - 1;
 			}
@@ -224,17 +195,16 @@ public class SupplySugar_Block extends BlockContainer {
 
 		if (isCorrectSugar) {
 			TileEntitySupplySugar tileentitysupply = (TileEntitySupplySugar)tile;
-	    	//player.addChatMessage(new ChatComponentText("onBlockActivated： " + tileentitysupply));
-	    	for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
+	    	int count = 0;
+			for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
 	    		ItemStack itemStack = player.inventory.getStackInSlot(i);
 	    		if ((itemStack != null) && (itemStack.getItem() == Items.sugar)) {
-	    			tileentitysupply.addSugarSize(itemStack.stackSize);
-	    			//itemStack.stackSize = -1;
+	    			count += itemStack.stackSize;
 	        		player.inventory.setInventorySlotContents(i, null);
 	    		}
 	    	}
+			tileentitysupply.addSugarSize(count);
 	    	int size = tileentitysupply.getSugarSize();
-	    	//System.out.println(tileentitysupply.getClass().getName());
 			if (!world.isRemote) {
 		    	player.addChatMessage(new ChatComponentText("砂糖の数： " + size));
 			}

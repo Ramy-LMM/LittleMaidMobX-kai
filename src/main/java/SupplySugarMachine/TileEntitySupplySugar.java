@@ -1,6 +1,9 @@
 package SupplySugarMachine;
 
+import java.util.List;
+
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
@@ -24,7 +27,6 @@ public class TileEntitySupplySugar extends TileEntity implements ISidedInventory
     {
         super.readFromNBT(nbt);
         this.SugarNumber = nbt.getInteger("sugar");
-        //this.SugarNumber = nbt.getLong("sugar");
         String name = nbt.getString("name");
         if (!name.isEmpty()) {
         	this.CustomName = name;
@@ -36,7 +38,6 @@ public class TileEntitySupplySugar extends TileEntity implements ISidedInventory
     {
     	super.writeToNBT(nbt);
     	nbt.setInteger("sugar", this.SugarNumber);
-    	//nbt.setLong("sugar", this.SugarNumber);
     	if (!this.CustomName.isEmpty()) {
     		nbt.setString("name",this.CustomName);
     	}
@@ -50,7 +51,6 @@ public class TileEntitySupplySugar extends TileEntity implements ISidedInventory
 	public Packet getDescriptionPacket() {
         NBTTagCompound nbt = new NBTTagCompound();
         this.writeToNBT(nbt);
-        //nbt.setLong("sugar", this.SugarNumber);
         return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, 1, nbt);
 	}
 
@@ -58,7 +58,6 @@ public class TileEntitySupplySugar extends TileEntity implements ISidedInventory
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
 		NBTTagCompound nbt = pkt.func_148857_g();
 		this.readFromNBT(nbt);
-		//this.SugarNumber = nbt.getLong("sugar");
     }
 
 	@SideOnly(Side.CLIENT)
@@ -66,6 +65,16 @@ public class TileEntitySupplySugar extends TileEntity implements ISidedInventory
     {
     	return this.worldObj.getBlockMetadata(xCoord, yCoord, zCoord);
     }
+
+	public void markDirty()
+	{
+		List<EntityPlayer> list = this.worldObj.playerEntities;
+		for (EntityPlayer player : list) {
+			if ((player instanceof EntityPlayerMP)) {
+				((EntityPlayerMP)player).playerNetServerHandler.sendPacket(getDescriptionPacket());
+			}
+		}
+	}
 
 	public int getSugarSize() {
 		return this.SugarNumber;
@@ -77,13 +86,12 @@ public class TileEntitySupplySugar extends TileEntity implements ISidedInventory
 			this.SugarNumber = this.stackLimit;
 		}
 		else {
-			//this.Sugar.stackSize += size;
-			this.SugarNumber += size;
+			this.SugarNumber = tmp_size;
 		}
+		markDirty();
 	}
 
 	public void setSugarSize(int size) {
-		//this.Sugar.stackSize = size;
 		this.SugarNumber = size;
 	}
 
@@ -121,7 +129,6 @@ public class TileEntitySupplySugar extends TileEntity implements ISidedInventory
 	@Override
 	public ItemStack decrStackSize(int slot, int dec) {
 		// TODO 自動生成されたメソッド・スタブ
-		//this.worldObj.getPlayerEntityByName("aoyanagiYuu").addChatMessage(new ChatComponentText("decrStackSize: "+slot+", "+dec));
 		if ((this.SugarNumber == 0) || (slot == 1)) return null;
 		int num = 0;
 		if(this.SugarNumber > 64) {
@@ -129,10 +136,11 @@ public class TileEntitySupplySugar extends TileEntity implements ISidedInventory
 			this.SugarNumber -= 64;
 		}
 		else {
-			num = (int)this.SugarNumber;
+			num = this.SugarNumber;
 			this.SugarNumber = 0;
 		}
 
+		markDirty();
 		if (num == 0) {
 			return null;
 		}
