@@ -51,7 +51,7 @@ public class LMM_EntityAIJumpToMaster extends EntityAIBase implements LMM_IEntit
 			}
 
 			//ここの処理まるごと消せば、もう自由の子。好きなところまで行ける
-			/*if (theMaid.getHomePosition().getDistanceSquared(
+			/**/if (theMaid.getHomePosition().getDistanceSquared(
 					MathHelper.floor_double(theMaid.posX),
 					MathHelper.floor_double(theMaid.posY),
 					MathHelper.floor_double(theMaid.posZ)) > 400D) {
@@ -63,7 +63,7 @@ public class LMM_EntityAIJumpToMaster extends EntityAIBase implements LMM_IEntit
 						"ID:%d(%s) Jump To Home.", theMaid.getEntityId(),
 						theMaid.worldObj.isRemote ? "C" : "W"));
 				return true;
-			}*/
+			}
 		} else {
 			jumpTarget = true;
 			theOwner = theMaid.getMaidMasterEntity();

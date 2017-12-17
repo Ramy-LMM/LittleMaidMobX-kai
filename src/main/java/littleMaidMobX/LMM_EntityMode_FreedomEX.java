@@ -72,7 +72,6 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 		//Itasks[1] = new EntityAITasks(owner.aiProfiler);
 		Itasks[0].addTask(1, owner.aiAttack);
 		Itasks[0].addTask(2, owner.aiSwiming);
-		Itasks[0].addTask(3, owner.aiJumpTo);
 		Itasks[1].addTask(1, new LMM_EntityAIHurtByTarget(owner, true));
 		Itasks[1].addTask(2, new LMM_EntityAINearestAttackableTarget(owner, EntityPlayerMP.class, 0, true));
 		owner.addMaidMode(Itasks, "FreedomEX", mmode_FreedomEX);
