@@ -285,6 +285,15 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 		LMM_LittleMaidMobX.Debug("init-ID:%d, %s:%d", getEntityId(), textureData.textureBox[0].textureName, textureData.getColor());
 		setTexturePackIndex(textureData.getColor(), textureData.textureIndex);
 		setMaidMode("Wild");
+		//新しいメイドの能力値を決める。
+		//ここは体力
+		if (this.rand.nextInt(4) == 0)
+		{
+			this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(22.0D);
+		}else {
+			this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(20.0D);
+		}
+		this.setHealth(this.getMaxHealth());
 		return super.onSpawnWithEgg(par1EntityLivingData);
 	}
 
