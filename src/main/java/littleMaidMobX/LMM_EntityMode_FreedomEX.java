@@ -360,7 +360,7 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 			//owner.getNavigator().tryMoveToXYZ(startSearchPos[0], startSearchPos[1], startSearchPos[2], 1.0);	//検索を始めた場所に戻る
 			//randomMove(px, py, pz);	//ランダムに移動
 			//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("お腹いっぱい: "+startSearchPos[0]+", "+startSearchPos[1]+", "+startSearchPos[2]));
-			owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("tile位置: "+px+", "+py+", "+pz));
+			//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("tile位置: "+px+", "+py+", "+pz));
 			//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("お腹いっぱい"));
 			clearMy();
 			moveStartSearchPosition();
@@ -391,7 +391,7 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 				clearMy();
 			}
 		}
-		owner.worldObj.getPlayerEntityByName(owner.getMaidMaster()).addChatMessage(new ChatComponentText("砂糖供給機["+chestPositionIndex+"]の砂糖量: "+((TileEntitySupplySugar)tile).getSugarSize()));
+		//owner.worldObj.getPlayerEntityByName(owner.getMaidMaster()).addChatMessage(new ChatComponentText("砂糖供給機["+chestPositionIndex+"]の砂糖量: "+((TileEntitySupplySugar)tile).getSugarSize()));
 		return false;
 	}
 
@@ -407,7 +407,7 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 			TileEntitySupplySugar tile = (TileEntitySupplySugar)owner.worldObj.getTileEntity(chestPosition[i][0], chestPosition[i][1], chestPosition[i][2]);
 			if (tile.getSugarSize() != 0) {
 				double length = owner.getDistanceSq(chestPosition[i][0], chestPosition[i][1], chestPosition[i][2]);
-				owner.worldObj.getPlayerEntityByName(owner.getMaidMaster()).addChatMessage(new ChatComponentText("NearestChest["+i+"]: "+length));
+				//owner.worldObj.getPlayerEntityByName(owner.getMaidMaster()).addChatMessage(new ChatComponentText("NearestChest["+i+"]: "+length));
 				if (length < minLength) {
 					minLength = length;
 					minIndex = i;
@@ -440,7 +440,7 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 					TileEntity tile = owner.worldObj.getTileEntity(chestPosition[chestPositionIndex][0], chestPosition[chestPositionIndex][1], chestPosition[chestPositionIndex][2]);
 					boolean bpath = MMM_Helper.setPathToTile(owner, tile, false);
 					//boolean bpath = owner.getNavigator().tryMoveToXYZ(chestPosition[0], chestPosition[1], chestPosition[2], 1.0);
-					owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("お砂糖少ない: modeSearchChest: "+modeSearchChest+", isMoving: "+isMoving+", bpath: "+bpath+", chestPositionIndex: "+chestPositionIndex));
+					//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("お砂糖少ない: modeSearchChest: "+modeSearchChest+", isMoving: "+isMoving+", bpath: "+bpath+", chestPositionIndex: "+chestPositionIndex));
 					return bpath;
 				}
 			}
@@ -486,17 +486,17 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 	@Override
 	public boolean executeBlock(int pMode, int px, int py, int pz) {
 		if (isSugarSupplyMachine) {
-			owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("executeBlock SearchChest: "+modeSearchChest+", 砂糖量： "+this.sugarCount));
+			//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("executeBlock SearchChest: "+modeSearchChest+", 砂糖量： "+this.sugarCount));
 			if (modeSearchChest) {
 				if (isOverStackSugar(5) || (owner.maidInventory.getFirstEmptyStack() == -1)) {
-					owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("executeBlock:５個以上かインベントリいっぱい"));
+					//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("executeBlock:５個以上かインベントリいっぱい"));
 					isMoving = false;
 					clearMy();
 				}
 				else {
 					//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("executeBlock:それ以外"));
 					boolean result = chestAction(chestPosition[chestPositionIndex][0], chestPosition[chestPositionIndex][1], chestPosition[chestPositionIndex][2]);
-					owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("executeBlock chestAction: "+result+", modeSearchChest: "+modeSearchChest+", isMoving: "+isMoving));
+					//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("executeBlock chestAction: "+result+", modeSearchChest: "+modeSearchChest+", isMoving: "+isMoving));
 					if (result) {
 						coolTime = 10;
 					}
@@ -511,12 +511,12 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 			}
 			else {
 				if (isOverStackSugar(5)) {
-					owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("executeBlock:５個以上"));
+					//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("executeBlock:５個以上"));
 					isMoving = false;
 					clearMy();
 				}
 				else {
-					owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("executeBlock:５個未満"));
+					//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("executeBlock:５個未満"));
 				}
 				/*else {
 					if (owner.maidInventory.getFirstEmptyStack() == -1) {

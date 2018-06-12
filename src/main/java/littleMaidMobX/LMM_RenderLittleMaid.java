@@ -215,7 +215,7 @@ public class LMM_RenderLittleMaid extends RenderModelMulti {
             GL11.glDisable(GL11.GL_TEXTURE_2D);
             tessellator.startDrawingQuads();
             int j = fontrenderer.getStringWidth(text) / 2;
-            tessellator.setColorRGBA_F(0.0F, 0.0F, 0.0F, 0.25F);
+            tessellator.setColorRGBA_F(0.0F, 0.0F, 0.0F, 1F);
             tessellator.addVertex((double)(-j - 1), (double)(-1 + b0), 0.0D);
             tessellator.addVertex((double)(-j - 1), (double)(8 + b0), 0.0D);
             tessellator.addVertex((double)(j + 1), (double)(8 + b0), 0.0D);
@@ -239,18 +239,18 @@ public class LMM_RenderLittleMaid extends RenderModelMulti {
         double width = fontrenderer.getStringWidth(text) / 16.0F * 0.45D + 0.3D;
 		Tessellator tessellator = Tessellator.instance;
 		GL11.glPushMatrix();
-		//GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		GL11.glTranslated(px, py+2.0D, pz);// - 0.25D
 		GL11.glRotated(-this.renderManager.livingPlayer.rotationYawHead, 0, 1, 0);
 		GL11.glRotated(this.renderManager.livingPlayer.rotationPitch, 1, 0, 0);
 
+		GL11.glEnable(GL11.GL_LIGHTING);
 		GL11.glEnable(GL12.GL_RESCALE_NORMAL);
 		GL11.glEnable(GL11.GL_BLEND);
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		//GL11.glScalef(0.5F, 0.5F, 0.5F);
-		//GL11.glColor4f(1.0F, 0.0F, 0.0F, 0.5F);
+		OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		GL11.glTranslated(0.25D, 0.0D, 0.0);// - 0.25D
-		GL11.glNormal3f(0.0F, 0.0F, 1.0F);
+		GL11.glNormal3f(0.0F, 0.0F, -1.0F);
 		this.bindTexture(texture);
 		tessellator.startDrawing(GL11.GL_QUADS);
 		tessellator.addVertexWithUV(-0.125D, -0.125D, 0.0D, 0.0, 1.0);
@@ -266,10 +266,7 @@ public class LMM_RenderLittleMaid extends RenderModelMulti {
             float f = 0.0266666688F;
             GL11.glTranslated(-0.3, 0.125, 0.0);
             GL11.glScalef(-f, -f, f);
-            GL11.glDisable(GL11.GL_LIGHTING);
-            GL11.glDepthMask(false);
-            GL11.glDisable(GL11.GL_DEPTH_TEST);
-            OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
             byte b0 = 0;
 
             if (text.equals("deadmau5"))
@@ -283,11 +280,6 @@ public class LMM_RenderLittleMaid extends RenderModelMulti {
             else {
             	fontrenderer.drawString(text, -fontrenderer.getStringWidth(text) / 2, b0, 0x00FF0000);
             }
-            GL11.glEnable(GL11.GL_DEPTH_TEST);
-            GL11.glDepthMask(true);
-            //fontrenderer.drawString(text, -fontrenderer.getStringWidth(text) / 2, b0, -1);
-            GL11.glEnable(GL11.GL_LIGHTING);
-            GL11.glDisable(GL11.GL_BLEND);
         }
         GL11.glPopMatrix();
 	}

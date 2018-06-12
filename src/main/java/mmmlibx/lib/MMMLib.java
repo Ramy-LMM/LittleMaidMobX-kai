@@ -53,7 +53,7 @@ public class MMMLib {
 
 		// MMMLibが立ち上がった時点で旧モデル置き換えを開始
 		MMMTransformer.isEnable = true;
-		
+
 		// コンフィグの解析・設定
 		File configFile = pEvent.getSuggestedConfigurationFile();
 		Configuration lconf = new Configuration(configFile);
@@ -61,29 +61,29 @@ public class MMMLib {
 		isDebugMessage		= lconf.get("MMMLib", "isDebugMessage", false).getBoolean(false);
 		isModelAlphaBlend	= lconf.get("MMMLib", "isModelAlphaBlend", true).getBoolean(true);
 		cfg_isModelAlphaBlend = isModelAlphaBlend;
-		
+
 		String ls;
 /* TODO ★
 		ls = "DestroyAll";
 		lconf.addCustomCategoryComment(ls, "Package destruction of the fixed range is carried out.");
 		DestroyAllManager.isDebugMessage = lconf.get(ls, "isDebugMessage", false).getBoolean(false);
-		
+
 		ls = "GunsBase";
 		lconf.addCustomCategoryComment(ls, "Basic processing of a firearm.");
 		GunsBase.isDebugMessage = lconf.get(ls, "isDebugMessage", false).getBoolean(false);
-		
+
 		ls = "MoveScreen";
 		lconf.addCustomCategoryComment(ls, "The position of a window is automatically moved to a start-up.");
  		MoveWindow.isMoveWindow	= lconf.get(ls, "isMoveWindow", false).getBoolean(false);
 		MoveWindow.windowPosX	= lconf.get(ls, "windowPosX", 20).getInt(20);
 		MoveWindow.windowPosY	= lconf.get(ls, "windowPosY", 50).getInt(50);
-		
+
 		ls = "EzRecipes";
 		lconf.addCustomCategoryComment(ls, "Append Recipes from JSON.");
 		EzRecipes.isDebugMessage = lconf.get(ls, "isDebugMessage", false).getBoolean(false);
 */
 		lconf.save();
-		
+
 		// 独自スクリプトデコーダー
 // TODO ★		(new MMMDecorder()).execute();
 
@@ -115,27 +115,27 @@ public class MMMLib {
 	public void loaded(FMLPostInitializationEvent pEvent) {
 		// 独自スクリプトデコーダー
 //		EzRecipes.init();
-		// 
+		//
 		GunsBase.initAppend();
-		
+
 		// 旧モデル用変換開始
 		MMMTransformer.isEnable = true;
 		MultiModelManager.instance.execute();
-		
+
 		// TODO test
 		List<File> llist = FileManager.getAllmodsFiles(getClass().getClassLoader(), true);
 		for (File lf : llist) {
 			Debug("targetFiles: %s", lf.getAbsolutePath());
 		}
-		
-		
+
+
 		try {
 			Class<?> lc = ReflectionHelper.getClass(getClass().getClassLoader(), "net.minecraft.entity.EntityLivingBase");
 			Debug("test-getClass: %s", lc.toString());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	public static void serverCustomPayload(EntityPlayer playerEntity, W_Message var2)
@@ -151,7 +151,7 @@ public class MMMLib {
 		}
 		Debug("MMM|Upd Srv Call[%2x:%d].", lmode, leid);
 //		byte[] ldata;
-		
+
 		switch (lmode) {
 		case MMM_Statics.Server_SetTexturePackIndex:
 			// サーバー側のEntityに対してテクスチャインデックスを設定する

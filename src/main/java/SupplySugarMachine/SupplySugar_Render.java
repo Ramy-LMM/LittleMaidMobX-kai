@@ -3,6 +3,7 @@ package SupplySugarMachine;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
@@ -10,73 +11,29 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
+@SideOnly(Side.CLIENT)
 public class SupplySugar_Render extends TileEntitySpecialRenderer {
+	public static SupplySugar_Render renderer;
 	ResourceLocation texture = null;
 	Minecraft mc = null;
 	double updown = 0.0;
 	boolean isUp = true;
 	double rot = 0.0;
+
 	public SupplySugar_Render() {
 		texture = new ResourceLocation("supplysugar","textures/marker/supplysugarmachine_marker.png");
 		mc = Minecraft.getMinecraft();
 	}
-/*
-	@Override
-	public void renderInventoryBlock(Block block, int metadata, int modelId,
-			RenderBlocks renderer) {
-		// TODO 自動生成されたメソッド・スタブ
-		Tessellator tessellator = Tessellator.instance;
-	    // if you don't perform this translation, the item won't sit in the player's hand properly in 3rd person view
-	    GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
 
-	    // for "inventory" blocks (actually for items which are equipped, dropped, or in inventory), should render in [0,0,0] to [1,1,1]
-	    tessellator.startDrawingQuads();
-	    renderPyramid(tessellator, 0.0, 0.0, 0.0);
-	    tessellator.draw();
+    public void setTileEntityRenderer(TileEntityRendererDispatcher par1TileEntityRenderer)
+    {
+        super.func_147497_a(par1TileEntityRenderer);
+        renderer = this;
+    }
 
-	    // don't forget to undo the translation you made at the start
-	    GL11.glTranslatef(0.5F, 0.5F, 0.5F);
-	}
-
-	@Override
-	public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z,
-			Block block, int modelId, RenderBlocks renderer) {
-		// TODO 自動生成されたメソッド・スタブ
-			Tessellator tessellator = Tessellator.instance;
-			// world blocks should render in [x,y,z] to [x+1, y+1, z+1]
-		    //     tessellator.startDrawingQuads() has already been called by the caller
-
-		    int lightValue = block.getMixedBrightnessForBlock(world, x, y, z);
-		    tessellator.setBrightness(lightValue);
-		    tessellator.setColorOpaque_F(1.0F, 5.0F, 1.0F);
-
-		    renderPyramid(tessellator, (double)x, (double)y, (double) z);
-		    //     tessellator.draw() will be called by the caller after return
-			//renderer.setRenderBounds(0.2D, 3.2D, 0.2D, 0.8D, 0.8D, 0.8D);
-			//GL11.glTranslatef(-0.5F, 3.5F, -0.5F);
-			//renderer.renderStandardBlock(block, x, y, z);
-			//renderer.setRenderBounds(0.2D, 3.2D, 0.2D, 0.8D, 0.8D, 0.8D);
-			//renderer.renderStandardBlock(block, x, y, z);
-			//renderer.setRenderBounds(0.2D, 3.2D, 0.2D, 0.8D, 0.8D, 0.8D);
-			//renderer.renderStandardBlock(block, x, y, z);
-			//renderer.setRenderBounds(0.2D, 3.2D, 0.2D, 0.8D, 0.8D, 0.8D);
-			//renderer.renderStandardBlock(block, x, y, z);
-			//GL11.glColor3d(1.0d, 0.0d, 0.0d);
-		return true;
-	}
-
-	@Override
-	public boolean shouldRender3DInInventory(int modelId) {
-		// TODO 自動生成されたメソッド・スタブ
-		return true;
-	}
-
-	@Override
-	public int getRenderId() {
-		// TODO 自動生成されたメソッド・スタブ
-		return LMM_LittleMaidMobX.SupplySugar_RenderID;
-	}
-*/
 	public void renderText(TileEntity tile, double coordX, double coordY, double coordZ, float scale) {
 		if (!((TileEntitySupplySugar)tile).CustomName.isEmpty()) {
 			//EntityPlayer player = tile.getWorldObj().getPlayerEntityByName(mc.thePlayer..getDisplayName());

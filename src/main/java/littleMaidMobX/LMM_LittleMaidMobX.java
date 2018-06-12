@@ -4,9 +4,7 @@ import mmmlibx.lib.FileManager;
 import mmmlibx.lib.MMM_Config;
 import mmmlibx.lib.MMM_Helper;
 import mmmlibx.lib.MMM_TextureManager;
-import net.minecraft.block.material.Material;
 import net.minecraft.entity.EnumCreatureType;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -15,9 +13,6 @@ import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.AchievementPage;
 import net.minecraftforge.common.MinecraftForge;
 import network.W_Network;
-import SupplySugarMachine.SupplySugar_Block;
-import SupplySugarMachine.SupplySugar_ItemBlock;
-import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -101,9 +96,6 @@ public class LMM_LittleMaidMobX {
 
 	public static LMM_ItemSpawnEgg spawnEgg;
 
-	public static SupplySugar_Block supplySugarBlock;
-	public static int SupplySugar_RenderID;
-
 	public static void Debug(String pText, Object... pVals) {
 		// デバッグメッセージ
 		if (cfg_PrintDebugMessage) {
@@ -163,23 +155,6 @@ public class LMM_LittleMaidMobX {
 				Character.valueOf('e'), Items.egg,
 			});
 		}
-
-		//砂糖供給ブロックを追加
-		supplySugarBlock = new SupplySugar_Block(Material.rock);
-		GameRegistry.registerBlock(supplySugarBlock, SupplySugar_ItemBlock.class, "SupplySugarMachineBlock");
-		GameRegistry.addRecipe(new ItemStack(supplySugarBlock, 1, 1), new Object[]{
-				"RRR",
-				"RSR",
-				"RRR",
-				'R', Blocks.cobblestone,
-				'S', Items.sugar
-		});
-		proxy.registerTileEntity();
-		//レンダーを追加
-		SupplySugar_RenderID = RenderingRegistry.getNextAvailableRenderId();
-		//RenderingRegistry.registerBlockHandler(new SupplySugar_Render());
-		proxy.initSupplySugarBlock();
-
 
 		ac_Contract = new Achievement("achievement.contract", "contract", 0, 0, Items.cake, null).initIndependentStat().registerStat();
 		Achievement[] achievements = new Achievement[] { ac_Contract };

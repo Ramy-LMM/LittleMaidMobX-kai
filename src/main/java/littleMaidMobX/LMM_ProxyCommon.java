@@ -4,10 +4,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import network.W_Message;
-import SupplySugarMachine.SupplySugar_Render;
-import SupplySugarMachine.TileEntitySupplySugar;
-import cpw.mods.fml.client.registry.ClientRegistry;
-import cpw.mods.fml.common.registry.GameRegistry;
 
 public class LMM_ProxyCommon
 {
@@ -20,18 +16,8 @@ public class LMM_ProxyCommon
 	public EntityPlayer getClientPlayer(){ return null; }
 	public void loadSounds(){}
 
-	public SupplySugar_Render render = new SupplySugar_Render();
-
 	public boolean isSinglePlayer()
 	{
 		return MinecraftServer.getServer().isSinglePlayer();
-	}
-
-	public void registerTileEntity() {
-		GameRegistry.registerTileEntity(TileEntitySupplySugar.class, "SupplySugarMachineTile");
-	}
-
-	public void initSupplySugarBlock() {
-		ClientRegistry.registerTileEntity(TileEntitySupplySugar.class, "SupplySugarMachineBlock", render);
 	}
 }

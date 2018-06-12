@@ -16,12 +16,8 @@ import net.minecraft.client.resources.IResourcePack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import network.W_Message;
-import SupplySugarMachine.SupplySugar_Render;
-import SupplySugarMachine.TileEntitySupplySugar;
-import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.ObfuscationReflectionHelper;
-import cpw.mods.fml.common.registry.GameRegistry;
 
 /**
  * クライアント専用処理。
@@ -138,13 +134,5 @@ public class LMM_ProxyClient extends LMM_ProxyCommon {
 	public void postInit() {
 		List<IResourcePack> defaultResourcePacks = ObfuscationReflectionHelper.getPrivateValue(Minecraft.class, Minecraft.getMinecraft(), "defaultResourcePacks", "field_110449_ao");
 		defaultResourcePacks.add(new LMM_OldZipTexturesLoader());
-	}
-
-	public void registerTileEntity() {
-		GameRegistry.registerTileEntity(TileEntitySupplySugar.class, "SupplySugarMachineTile");
-	}
-
-	public void initSupplySugarBlock() {
-		ClientRegistry.registerTileEntity(TileEntitySupplySugar.class, "SupplySugarMachineBlock", new SupplySugar_Render());
 	}
 }

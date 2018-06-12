@@ -29,8 +29,8 @@ public class SupplySugar_Block extends BlockContainer {
 	public IIcon sidedIcon;
 	public IIcon markerIcon;
 
-	public SupplySugar_Block(Material p_i45394_1_) {
-		super(p_i45394_1_);
+	public SupplySugar_Block() {
+		super(Material.rock);
 		setCreativeTab(CreativeTabs.tabTools);
         setBlockName("SupplySugarMachineBlock");/*システム名の設定*/
         //setBlockTextureName("freedommod:sugarsupplymachine_horizontal");/*ブロックのテクスチャの指定(複数指定の場合は消してください)*/

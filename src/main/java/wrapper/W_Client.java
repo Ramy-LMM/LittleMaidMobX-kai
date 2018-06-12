@@ -7,7 +7,7 @@ import cpw.mods.fml.common.Loader;
 public class W_Client
 {
 	private static final W_IClient instance = getInstance();
-	
+
 	private static W_IClient getInstance()
 	{
 		final String VER = Loader.instance().getMCVersionString();
@@ -21,7 +21,7 @@ public class W_Client
 		}
 		return null;
 	}
-	
+
 	public static void renderSkeletonHead(TileEntitySkullRenderer skullRenderer,
 			float x, float y, float z,
 			int p_147530_4_, float p_147530_5_, int p_147530_6_,
