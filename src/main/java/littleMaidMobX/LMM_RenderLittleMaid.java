@@ -215,7 +215,7 @@ public class LMM_RenderLittleMaid extends RenderModelMulti {
             GL11.glDisable(GL11.GL_TEXTURE_2D);
             tessellator.startDrawingQuads();
             int j = fontrenderer.getStringWidth(text) / 2;
-            tessellator.setColorRGBA_F(0.0F, 0.0F, 0.0F, 1F);
+            tessellator.setColorRGBA_F(0.0F, 0.0F, 0.0F, 1.0F);
             tessellator.addVertex((double)(-j - 1), (double)(-1 + b0), 0.0D);
             tessellator.addVertex((double)(-j - 1), (double)(8 + b0), 0.0D);
             tessellator.addVertex((double)(j + 1), (double)(8 + b0), 0.0D);

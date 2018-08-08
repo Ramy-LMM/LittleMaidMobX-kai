@@ -9,8 +9,8 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public void registerTileEntity()
 	{
-		//ClientRegistry.registerTileEntity(TileEntitySupplySugar.class, "SupplySugarMachineTile", new SupplySugar_Render());
-		ClientRegistry.bindTileEntitySpecialRenderer(TileEntitySupplySugar.class, new SupplySugar_Render());
+		ClientRegistry.registerTileEntity(TileEntitySupplySugar.class, "SupplySugarMachineTile", new SupplySugar_Render());
+		//ClientRegistry.bindTileEntitySpecialRenderer(TileEntitySupplySugar.class, new SupplySugar_Render());
 	}
 
 	@Override

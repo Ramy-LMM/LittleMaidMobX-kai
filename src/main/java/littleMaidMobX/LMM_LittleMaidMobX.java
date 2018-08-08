@@ -38,6 +38,7 @@ public class LMM_LittleMaidMobX {
 		"checkOwnerName = At local, make sure the name of the owner. ",
 		"antiDoppelganger = Not to survive the doppelganger. ",
 		"enableSpawnEgg = Enable LMM SpawnEgg Recipe. ",
+		"enableDisplaySugarCount = Enable Display Sugar count. ",
 		"VoiceDistortion = LittleMaid Voice distortion.",
 		"defaultTexture = Default selected Texture Packege. Null is Random",
 		"DebugMessage = Print Debug Massages.",
@@ -65,6 +66,8 @@ public class LMM_LittleMaidMobX {
 	public static boolean cfg_antiDoppelganger = true;
 //	@MLProp(info="Enable LMM SpawnEgg Recipe. ")
 	public static boolean cfg_enableSpawnEgg = true;
+//	@MLProp(info="Enable Display Sugar count. ")
+	public static boolean cfg_enableDisplaySugarCount = true;
 
 
 //	@MLProp(info="LittleMaid Voice distortion.")
@@ -95,6 +98,8 @@ public class LMM_LittleMaidMobX {
 	public static LMM_LittleMaidMobX instance;
 
 	public static LMM_ItemSpawnEgg spawnEgg;
+
+	public static LMM_ItemDismissalNotice dismissalNotice;
 
 	public static void Debug(String pText, Object... pVals) {
 		// デバッグメッセージ
@@ -155,6 +160,19 @@ public class LMM_LittleMaidMobX {
 				Character.valueOf('e'), Items.egg,
 			});
 		}
+
+		//解雇通知書を追加
+		dismissalNotice = new LMM_ItemDismissalNotice();
+		dismissalNotice.setUnlocalizedName(DOMAIN + ":dismissal_notice_paper");
+		dismissalNotice.setTextureName(DOMAIN + ":dismissal_notice_paper");
+		GameRegistry.registerItem(dismissalNotice, "dismissal_notice_paper");
+		GameRegistry.addRecipe(new ItemStack(dismissalNotice, 1), new Object[] {
+			"ppp",
+			"pcp",
+			"ppp",
+			Character.valueOf('p'), Items.paper,
+			Character.valueOf('c'), Items.cake,
+		});
 
 		ac_Contract = new Achievement("achievement.contract", "contract", 0, 0, Items.cake, null).initIndependentStat().registerStat();
 		Achievement[] achievements = new Achievement[] { ac_Contract };

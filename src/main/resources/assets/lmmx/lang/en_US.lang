@@ -1,6 +1,7 @@
 entity.lmmx.LittleMaidX.name=Little Maid
 
 item.lmmx:spawn_lmmx_egg.name=Little Maid
+item.lmmx:dismissal_notice_paper.name=Dismissal Notice
 
 littleMaidMob.mode.Torcher=Torcher
 littleMaidMob.mode.F-Torcher=F-Torcher

@@ -201,6 +201,7 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 
 	//攻撃された回数
 	private int attackCount = 0;
+	public boolean IsDismissalNotice = false;
 
 	public LMM_EntityLittleMaid(World world) {
 		super(world);
@@ -287,12 +288,14 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 		setMaidMode("Wild");
 		//新しいメイドの能力値を決める。
 		//ここは体力
+		/*
 		if (this.rand.nextInt(4) == 0)
 		{
 			this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(22.0D);
 		}else {
 			this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(20.0D);
 		}
+		*/
 		this.setHealth(this.getMaxHealth());
 		return super.onSpawnWithEgg(par1EntityLivingData);
 	}
@@ -2613,8 +2616,16 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 								}
 
 								return true;
-							} else if(itemstack1.getItem() == Items.stick) {
+							}
+							else if(itemstack1.getItem() == Items.stick) {
 								setDominantArm(maidDominantArm == 0 ? 1 : 0);
+								return true;
+							}
+							else if(itemstack1.getItem() == LMM_LittleMaidMobX.dismissalNotice) {
+								MMM_Helper.decPlayerInventory(par1EntityPlayer, -1, 1);
+								//IsDismissalNotice = true;
+								setTamed(false);
+								//par1EntityPlayer.addChatMessage(new ChatComponentText("DismissalNotice"));
 								return true;
 							}
 						} else {
@@ -2653,6 +2664,8 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 
 						deathTime = 0;
 						if (!worldObj.isRemote) {
+							dropItem(Items.name_tag, 1);
+
 							if (LMM_LittleMaidMobX.ac_Contract != null) {
 								par1EntityPlayer.triggerAchievement(LMM_LittleMaidMobX.ac_Contract);
 							}

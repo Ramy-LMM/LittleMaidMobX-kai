@@ -17,10 +17,16 @@ public class ModelBaseSolo extends ModelBaseNihil implements IModelBaseMMM {
 	public ModelMultiBase model;
 	public ResourceLocation[] textures;
 	public static final ResourceLocation[] blanks = new ResourceLocation[0];
+	float renderAlpha = 1.0f;
+	boolean isVanish = false;
 
 
 	public ModelBaseSolo(RendererLivingEntity pRender) {
 		rendererLivingEntity = pRender;
+	}
+
+	public void SetVanish(boolean bool) {
+		isVanish = bool;
 	}
 
 	@Override
@@ -67,6 +73,7 @@ public class ModelBaseSolo extends ModelBaseNihil implements IModelBaseMMM {
 			if (textures.length > 0 && textures[0] != null) {
 				Client.setTexture(textures[0]);
 			}
+			//GL11.glColor4f(1.0F, 1.0F, 1.0F, renderAlpha);
 			model.render(entityCaps, par2, par3, par4, par5, par6, par7, isRendering);
 		}
 		isAlphablend = false;
@@ -78,18 +85,25 @@ public class ModelBaseSolo extends ModelBaseNihil implements IModelBaseMMM {
 			GL11.glEnable(GL11.GL_ALPHA_TEST);
 			GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
 			GL11.glDepthFunc(GL11.GL_LEQUAL);
-			
+
 			Client.setLightmapTextureCoords(0x00f000f0);//61680
-			GL11.glColor4f(1.0F, 1.0F, 1.0F, var4);
+			GL11.glColor4f(1.0F, 1.0F, 1.0F, renderAlpha);
 			model.render(entityCaps, par2, par3, par4, par5, par6, par7, true);
-			
+
 			Client.setLightmapTextureCoords(lighting);
-			
+
 //			GL11.glEnable(GL11.GL_LIGHTING);
 			GL11.glDisable(GL11.GL_BLEND);
 			GL11.glEnable(GL11.GL_ALPHA_TEST);
 			GL11.glDepthMask(true);
 		}
+
+		if(isVanish) {
+	        renderAlpha -= 0.001F;
+	        if (renderAlpha < 0.0f) {
+	        	renderAlpha = 0.0f;
+	        }
+        }
 //		textures = blanks;
 		renderCount++;
 	}

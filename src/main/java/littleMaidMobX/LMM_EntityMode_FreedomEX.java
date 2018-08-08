@@ -77,7 +77,7 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 		owner.addMaidMode(Itasks, "FreedomEX", mmode_FreedomEX);
 	}
 
-	private boolean chechWrittenBookAtFirstInv(){
+	private boolean checkWrittenBookAtFirstInv(){
 		ItemStack itemstack = owner.maidInventory.getStackInSlot(0);
 		if (itemstack != null) {
 			if (itemstack.getItem() == Items.written_book) {
@@ -111,12 +111,14 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 							nbt.setTag("pages", tagList);
 							itemstack.setTagCompound(nbt);
 							chestPositionIndex = 0;
-							prePos = new int[]{chestPosition[0][0], chestPosition[0][1], chestPosition[0][2]};
-							//owner.worldObj.getPlayerEntityByName(owner.getMaidMaster()).addChatMessage(new ChatComponentText("position: "+chestPosition[0]+", "+chestPosition[1]+", "+chestPosition[2]));
-							TileEntity tile = owner.worldObj.getTileEntity(chestPosition[0][0], chestPosition[0][1], chestPosition[0][2]);
-							if (tile instanceof TileEntitySupplySugar) {
-								isSugarSupplyMachine = true;
-								modeSearchChest = false;
+							if(chestPosition.length>0){
+								prePos = new int[]{chestPosition[0][0], chestPosition[0][1], chestPosition[0][2]};
+								//owner.worldObj.getPlayerEntityByName(owner.getMaidMaster()).addChatMessage(new ChatComponentText("position: "+chestPosition[0]+", "+chestPosition[1]+", "+chestPosition[2]));
+								TileEntity tile = owner.worldObj.getTileEntity(chestPosition[0][0], chestPosition[0][1], chestPosition[0][2]);
+								if (tile instanceof TileEntitySupplySugar) {
+									isSugarSupplyMachine = true;
+									modeSearchChest = false;
+								}
 							}
 							return true;
 						}
@@ -130,7 +132,7 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 
 	@Override
 	public boolean changeMode(EntityPlayer pentityplayer) {
-		boolean check = chechWrittenBookAtFirstInv();
+		boolean check = checkWrittenBookAtFirstInv();
 		if (check) {
 			owner.setMaidMode("FreedomEX");
 			owner.aiWander.setEnable(true);
@@ -184,8 +186,10 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 
 	@Override
 	public boolean checkBlock(int pMode, int px, int py, int pz) {
+		if(pMode != mmode_FreedomEX) return false;
+
 		if (chestPosition == null) {
-			chechWrittenBookAtFirstInv();
+			checkWrittenBookAtFirstInv();
 		}
 		if (isSugarSupplyMachine && modeSearchChest) {
 			int[] pos = {chestPosition[chestPositionIndex][0], chestPosition[chestPositionIndex][1], chestPosition[chestPositionIndex][2]};
@@ -420,7 +424,7 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 	@Override
 	public boolean isSearchBlock() {
 		if(chestPosition == null){
-			chechWrittenBookAtFirstInv();
+			checkWrittenBookAtFirstInv();
 		}
 		if (isSugarSupplyMachine) {
 			if (isOneStackSugar()) {
@@ -467,6 +471,8 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 
 	@Override
 	public boolean shouldBlock(int pMode) {
+		if(pMode != mmode_FreedomEX) return false;
+
 		if (isSugarSupplyMachine) {
 			if (modeSearchChest || !isMoving) {
 				//TileEntity tile = owner.worldObj.getTileEntity(chestPosition[0], chestPosition[1], chestPosition[2]);
@@ -485,6 +491,8 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 
 	@Override
 	public boolean executeBlock(int pMode, int px, int py, int pz) {
+		if(pMode != mmode_FreedomEX) return false;
+
 		if (isSugarSupplyMachine) {
 			//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("executeBlock SearchChest: "+modeSearchChest+", 砂糖量： "+this.sugarCount));
 			if (modeSearchChest) {
@@ -543,6 +551,8 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 
 	@Override
 	public boolean outrangeBlock(int pMode, int pX, int pY, int pZ) {
+		if(pMode != mmode_FreedomEX) return false;
+
 		if (isSugarSupplyMachine) {
 			if (modeSearchChest && !isMoving) {
 				return true;
@@ -561,13 +571,19 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 
 	@Override
 	public void showSpecial(LMM_RenderLittleMaid prenderlittlemaid, double px, double py, double pz) {
-		if (owner.isContract()) {
+		if (owner.isContract() && LMM_LittleMaidMobX.cfg_enableDisplaySugarCount) {
 			prenderlittlemaid.renderSugarCount(owner, sugarCount, px, py, pz, 64);
+			/*
+			if(owner.IsDismissalNotice) {
+				prenderlittlemaid.modelMain.SetVanish(true);
+			}
+			*/
 		}
 	}
 
 	@Override
 	public boolean attackEntityAsMob(int pMode, Entity pEntity) {
+		//owner.worldObj.getPlayerEntityByName(owner.getMaidMaster()).addChatMessage(new ChatComponentText("Attack"));
 		if ((pMode == mmode_FreedomEX) && (pEntity instanceof EntityPlayer)) {
 			owner.maidAvatar.attackTargetEntityWithCurrentItem(pEntity);
 			return true;
@@ -602,6 +618,7 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 		//owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("attackEntityFrom: "+par1DamageSource.damageType+","+par2));
 		if (attackTime >= 0) {
 			par2 = 0;
+			//owner.worldObj.getPlayerEntityByName(owner.getMaidMaster()).addChatMessage(new ChatComponentText("attackTime:"+attackTime));
 			return true;
 		}
 		else {
@@ -637,34 +654,28 @@ public class LMM_EntityMode_FreedomEX extends LMM_EntityMode_Basic {
 	@Override
 	public void onUpdate(int pMode) {
 		super.onUpdate(pMode);
-		if (0 < coolTime) {
-			coolTime--;
-		}
-		if (0 < freezeSSBTime) {
-			freezeSSBTime--;
-		}
-		if (0 < freezeStartPosTime) {
-			freezeStartPosTime--;
-			moveStartSearchPosition();
-		}
 		if (0 < updateSugarTime) {
 			updateSugarTime--;
 			if (updateSugarTime == 0) {
 				updateSugarTime = 30;
 				sugarCount = countOfSugar();
-				if(isOneStackSugar() && owner.isMaidWaitEx()) {
+				if(isOneStackSugar() && owner.isMaidWaitEx() && (pMode == mmode_FreedomEX)) {
 					owner.setMaidWait(false);
 				}
 			}
 		}
+
 		if (pMode == mmode_FreedomEX) {
-			/*if (0 < heartTime) {
-				heartTime--;
-				if (heartTime == 0) {
-					owner.showParticleFX("heart", 0.5D, 0.5D, 0.5D, 1.0D, 0.0D, 1.0D);
-					heartTime = 30;
-				}
-			}*/
+			if (0 < coolTime) {
+				coolTime--;
+			}
+			if (0 < freezeSSBTime) {
+				freezeSSBTime--;
+			}
+			if (0 < freezeStartPosTime) {
+				freezeStartPosTime--;
+				moveStartSearchPosition();
+			}
 			if (0 < attackTime) {
 				attackTime--;
 				owner.showParticleFX("reddust",
