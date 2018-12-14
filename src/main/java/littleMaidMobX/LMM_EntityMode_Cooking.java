@@ -6,7 +6,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityFurnace;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.MathHelper;
 
 public class LMM_EntityMode_Cooking extends LMM_EntityModeBlockBase {
@@ -136,7 +135,6 @@ public class LMM_EntityMode_Cooking extends LMM_EntityModeBlockBase {
 		if (!owner.isEqualTile()) {
 			return false;
 		}
-		owner.getMaidMasterEntity().addChatMessage(new ChatComponentText("executeBlock"));
 		TileEntityFurnace ltile = (TileEntityFurnace)owner.maidTileEntity;
 		ItemStack litemstack;
 		boolean lflag = false;

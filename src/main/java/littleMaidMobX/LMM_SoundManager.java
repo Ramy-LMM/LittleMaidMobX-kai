@@ -22,12 +22,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
-import net.minecraft.util.ResourceLocation;
 import mmmlibx.lib.FileManager;
 import mmmlibx.lib.MMMLib;
+import net.minecraft.util.ResourceLocation;
 
 public class LMM_SoundManager {
-	
+
 	/** mods\littleMaidMobX を保持する */
 	private static File soundDir = null;
 	/** サウンドパックのフォルダまたはZipを保持する。nullの場合はサウンドをロードしない */
@@ -43,7 +43,7 @@ public class LMM_SoundManager {
 	public static float soundRateDefault;
 	public static Map<String, Map<Integer, Float>> soundRateTexture = new HashMap<String,Map<Integer,Float>>();
 
-	
+
 	public static void init() {
 		// 初期設定
 		soundDir = new File(FileManager.dirMods, "/littleMaidMobX/");
@@ -57,12 +57,12 @@ public class LMM_SoundManager {
 			LMM_LittleMaidMobX.Debug("SoundDir: %s", getSoundDir().toString());
 		}
 	}
-	
+
 	public static File getSoundDir()
 	{
 		return soundDir;
 	}
-	
+
 	public static InputStream getSoundJson()
 	{
 		// 起動時に自動生成される mods/littleMaidMobX/sounds/sounds.json を読み出す
@@ -74,11 +74,11 @@ public class LMM_SoundManager {
 
 		return null;
 	}
-	
+
 	public static InputStream getResourceStream(ResourceLocation resource)
 	{
 		String path = resource.getResourcePath().toLowerCase();
-		
+
 		// よく分からんが .mcmeta はいらないのと思うので消す
 		if(path.endsWith(".mcmeta"))
 		{
@@ -89,14 +89,14 @@ public class LMM_SoundManager {
 		{
 			return LMM_SoundManager.getSoundJson();
 		}
-		
+
 		String fileName = path;
 		int c = fileName.lastIndexOf('/');
 		if(c >= 0)
 		{
 			fileName = fileName.substring(c+1);
 		}
-		
+
 		if(soundStreamMap.size() > 0 && fileName.endsWith(".ogg"))
 		{
 			return soundStreamMap.get(fileName);
@@ -115,7 +115,7 @@ public class LMM_SoundManager {
 		} else {
 			target = target.trim();
 		}
-		
+
 		for (String s : arg) {
 			if (s.indexOf(';') == -1) {
 				// テクスチャ指定詞が無い
@@ -150,7 +150,7 @@ public class LMM_SoundManager {
 						ls = new String[] { target, ss[0].trim(), ss[1].trim()};
 					}
 				}
-					
+
 				int li = ls[1].isEmpty() ? -1 : Integer.valueOf(ls[1]);
 				float lf = ls[2].isEmpty() ? 1.0F : Float.valueOf(ls[2]);
 				mif = soundRateTexture.get(ls[0]);
@@ -186,7 +186,7 @@ public class LMM_SoundManager {
 	public static void setSoundValue(int soundindex, String value, String target) {
 		// 文字列を解析して値を設定
 		String arg[] = value.split(",");
-		
+
 		for (String s : arg) {
 			String tvalue;
 			if (s.indexOf(';') == -1) {
@@ -212,7 +212,7 @@ public class LMM_SoundManager {
 	public static void setSoundValue(int soundindex, String value) {
 		// 文字列を解析して値を設定
 		String arg[] = value.split(",");
-		
+
 		for (String s : arg) {
 			if (s.indexOf(';') == -1) {
 				// テクスチャ指定詞が無い
@@ -245,12 +245,12 @@ public class LMM_SoundManager {
 
 	public static String getSoundValue(LMM_EnumSound enumsound, String texturename, int colorvalue){
 		if (enumsound == LMM_EnumSound.Null) return null;
-		
+
 		Map<String, Map<Integer, String>> msi = soundsTexture.get(enumsound.index);
 		if (msi == null) {
 			return soundsDefault.get(enumsound.index);
 		}
-		
+
 		if (texturename == null || texturename.length() == 0) texturename = ";";
 		Map<Integer, String> mst = msi.get(texturename);
 		if (mst == null) {
@@ -292,11 +292,11 @@ public class LMM_SoundManager {
 			}
 		}
 		soundsDefault = lmap;
-		
+
 		// Texture
 		for (Entry<Integer, Map<String, Map<Integer, String>>> mim : soundsTexture.entrySet()) {
 			for (Entry<String, Map<Integer, String>> msm : mim.getValue().entrySet()) {
-				
+
 				for (Entry<Integer, String> mis : msm.getValue().entrySet()) {
 					if (mis.getValue().equals("^")) {
 						boolean lf = false;
@@ -342,7 +342,7 @@ public class LMM_SoundManager {
 				if (i > -1) {
 					String name = str.substring(0, i).trim();
 					String value = str.substring(i + 1).trim();
-					
+
 					int index = -1;
 					if (name.startsWith("se_")) {
 
@@ -352,7 +352,7 @@ public class LMM_SoundManager {
 
 						// TODO ★ 音声ファイルの指定文字列の末尾に数値が付いてしまっているパックがあるので削除
 						value = value.replaceAll("\\d+$", ""); // ファイルの終わりの数値部分を削除
-						
+
 						String ss = name.substring(3);
 						try {
 							index = LMM_EnumSound.valueOf(ss).index;
@@ -380,7 +380,7 @@ public class LMM_SoundManager {
 				}
 			}
 			breader.close();
-			
+
 			// コンフィグファイルがフォルダ内の場合のみ書き込む(Zip内の場合は書き込まない)
 			if(iswrite)
 			{
@@ -420,7 +420,7 @@ public class LMM_SoundManager {
 		} else {
 			LMM_LittleMaidMobX.Debug("no Sound Directory.");
 		}
-		
+
 		rebuildSoundPack();
 	*/
 	}
@@ -430,12 +430,12 @@ public class LMM_SoundManager {
 		try
 		{
 			boolean loadCfg = loadSoundPackCfg();
-		
+
 			if(loadCfg == false)
 			{
 				File soundCfg = new File(getSoundDir(), "default_" + SoundConfigName);
 				soundPackDir = null;
-	
+
 				if (soundCfg.exists() && soundCfg.isFile())
 				{
 					LMM_LittleMaidMobX.Debug(soundCfg.getName());
@@ -458,7 +458,7 @@ public class LMM_SoundManager {
 		}
 		rebuildSoundPack();
 	}
-	
+
 	/** mods 直下のディレクトリとZipを全て検索、ディレクトリ内のZipはチェックしない */
 	public static boolean loadSoundPackCfg() throws IOException
 	{
@@ -502,7 +502,7 @@ public class LMM_SoundManager {
 			}
 		}
 	}
-	
+
 	// mods配下の全フォルダからコンフィグファイルを検索する
 	// 最初に見つけた時点で終了する。2つ以上サウンドパックを入れた場合、どちらが使われるかは保証できない。
 	public static boolean searchSoundCfgDir(File dir) throws IOException
@@ -519,17 +519,17 @@ public class LMM_SoundManager {
 			else if(file.getName().equalsIgnoreCase(SoundConfigName))
 			{
 				Reader reader = new FileReader(file);
-				
+
 				decodeSoundPack(file.getName(), reader, false, true);
-				
+
 				reader.close();
-				
+
 				return true;
 			}
 		}
 		return false;
 	}
-	
+
 	// zip配下からコンフィグファイルを検索する
 	// 最初に見つけた時点で終了する。2つ以上サウンドパックを入れたら保証できない。
 	public static boolean searchSoundCfgZip(File file)
@@ -572,10 +572,10 @@ public class LMM_SoundManager {
 				}
 			}
 			while(true);
-			
+
 			zipinputstream.close();
 			fileinputstream.close();
-			
+
 			// .cfgを見つけたら、サウンドパックと判断し、oggを全て読み出す
 			if(foundCfg)
 			{
@@ -604,7 +604,7 @@ public class LMM_SoundManager {
 					}
 				}
 				while(true);
-				
+
 				zipinputstream.close();
 				fileinputstream.close();
 			}
@@ -622,7 +622,7 @@ public class LMM_SoundManager {
 			if (eslm == LMM_EnumSound.Null) continue;
 			setSoundValue(eslm.index, eslm.DefaultValue);
 		}
-		
+
 		// デフォルトサウンドパックを作成
 		if (file1.exists()) {
 			return false;
@@ -630,13 +630,13 @@ public class LMM_SoundManager {
 		try {
 			if (file1.createNewFile()) {
 				BufferedWriter bwriter = new BufferedWriter(new FileWriter(file1));
-				
+
 				for (LMM_EnumSound eslm : LMM_EnumSound.values()) {
 					writeBuffer(bwriter, eslm);
 				}
 				// LivingVoiceRate
 				writeBufferSoundRate(bwriter, 1.0F);
-				
+
 				bwriter.close();
 				LMM_LittleMaidMobX.Debug("Success create Default Sound cfg.");
 			}
@@ -651,11 +651,11 @@ public class LMM_SoundManager {
 	protected static void writeBuffer(BufferedWriter buffer, LMM_EnumSound enumsound) throws IOException {
 		// 渡されたWBufferへ書き込む
 		if (enumsound == LMM_EnumSound.Null) return;
-		
+
 		buffer.write("# ");
 		buffer.write(enumsound.info);
 		buffer.newLine();
-		
+
 		buffer.write("se_");
 		buffer.write(enumsound.name());
 		buffer.write("=");
@@ -680,15 +680,15 @@ public class LMM_SoundManager {
 		{
 			return;
 		}
-		
+
 		File file1 = new File(getSoundDir(), "sounds.json");
 		try {
 			BufferedWriter bwriter = new BufferedWriter(new FileWriter(file1));
-			
+
 			String str = searchSoundAndWriteFile("", dir, "");
 			bwriter.write("{\n" + str + "\n}\n");
 			bwriter.newLine();
-			
+
 			bwriter.close();
 			LMM_LittleMaidMobX.Debug("Success create Sounds.json(%s).", file1.getAbsolutePath());
 		} catch (IOException e) {
@@ -764,7 +764,7 @@ public class LMM_SoundManager {
 			}
 			output = output + s;
 		}
-		
+
 		return output;
 	}
 	public static String searchSoundAndWriteFileZip(String output, File dir) throws IOException
@@ -791,7 +791,7 @@ public class LMM_SoundManager {
 					{
 						fileName = fileName.substring(c+1);
 					}
-					
+
 					final String soundName = fileName.replaceAll("\\d+$", ""); // ファイルの終わりの数値部分を削除
 					final String name = fileName.replace(".", "/");
 					if(!map.containsKey(soundName))
@@ -834,7 +834,7 @@ public class LMM_SoundManager {
 		{
 			exception.printStackTrace();
 		}
-		
+
 		return output;
 	}
 }

@@ -56,12 +56,12 @@ public class LMM_EntityAIJumpToMaster extends EntityAIBase implements LMM_IEntit
 					MathHelper.floor_double(theMaid.posY),
 					MathHelper.floor_double(theMaid.posZ)) > 400D) {
 				jumpTarget = false;
-				theMaid.getMaidMasterEntity().addChatMessage(new ChatComponentText(String.format(
+				/*theMaid.getMaidMasterEntity().addChatMessage(new ChatComponentText(String.format(
 						"ID:%d(%s) Jump To Home.", theMaid.getEntityId(),
 						theMaid.worldObj.isRemote ? "C" : "W")));
 				LMM_LittleMaidMobX.Debug(String.format(
 						"ID:%d(%s) Jump To Home.", theMaid.getEntityId(),
-						theMaid.worldObj.isRemote ? "C" : "W"));
+						theMaid.worldObj.isRemote ? "C" : "W"));*/
 				return true;
 			}
 		} else {

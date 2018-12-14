@@ -16,7 +16,7 @@ public class FileManager {
 	public static File dirMinecraft;
 	public static File dirMods;
 	public static File dirModsVersion;
-	
+
 	public static List<File> files;
 	public static String minecraftDir	= "";
 //	public static File   minecraftJar	= null;	// minecraft.jarを見に行くのは昔の仕様？
@@ -33,7 +33,7 @@ public class FileManager {
 		dirModsVersion = new File(dirMods, (String)lo[4]);
 		MMMLib.Debug("init FileManager.");
 	}
-	
+
 	// MODロード直後に実行すること。
 	// 引数にはMODのベースとなるフルパスを渡す
 	// C:\~~~~\minecraft\mods\littleMaidMobX または
@@ -154,7 +154,7 @@ public class FileManager {
 			llist = new ArrayList<File>();
 			fileList.put(pname, llist);
 		}
-		
+
 		MMMLib.Debug("getModFile:[%s]:%s", pname, dirMods.getAbsolutePath());
 		// ファイル・ディレクトリを検索
 		try {
@@ -205,7 +205,7 @@ public class FileManager {
 			}
 		}
 	}
-	
+
 	public static List<File> getFileList(String pname)
 	{
 		return fileList.get(pname);

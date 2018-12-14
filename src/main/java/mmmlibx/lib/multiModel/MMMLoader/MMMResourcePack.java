@@ -36,7 +36,7 @@ public class MMMResourcePack implements IResourcePack {
 	@Override
 	public InputStream getInputStream(ResourceLocation par1ResourceLocation) throws IOException {
 		InputStream inputstream = getResourceStream(par1ResourceLocation, true);
-		
+
 		if (inputstream != null) {
 			return inputstream;
 		} else {
@@ -54,6 +54,7 @@ public class MMMResourcePack implements IResourcePack {
 			}
 
 			MMMLib.Debug("getResource:"+b+":%s : %s", resource, lis);
+			return lis;
 		}
 		return null;
 	}
@@ -61,7 +62,7 @@ public class MMMResourcePack implements IResourcePack {
 	@Override
 	public boolean resourceExists(ResourceLocation par1ResourceLocation) {
 		InputStream is = getResourceStream(par1ResourceLocation, false);
-		
+
 		return is != null;
 	}
 
