@@ -69,6 +69,8 @@ littleMaidMob.mode.T-Detonator=T-Detonator
 
 littleMaidMob.mode.FreedomEX=FreedomEX
 littleMaidMob.mode.F-FreedomEX=FreedomEX
+littleMaidMob.mode.Miner=Miner
+littleMaidMob.mode.F-Miner=F-Miner
 
 littleMaidMob.text.Health=Health
 littleMaidMob.text.AP=AP

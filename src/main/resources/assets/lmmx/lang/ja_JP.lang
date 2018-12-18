@@ -22,6 +22,8 @@ littleMaidMob.mode.T-Ripper=赤石探知毛狩り隊
 
 littleMaidMob.mode.FreedomEX=自由行動EX
 littleMaidMob.mode.F-FreedomEX=自由行動EX
+littleMaidMob.mode.Miner=採掘士
+littleMaidMob.mode.F-Miner=自由採掘士
 
 littleMaidMob.text.AP=メイド装甲
 littleMaidMob.text.Health=メイド強度
