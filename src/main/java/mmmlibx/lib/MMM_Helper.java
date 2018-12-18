@@ -698,4 +698,9 @@ public class MMM_Helper {
 		return relativePath;
 	}
 
+	//Returns time in ticks
+	public static float getMineTime(World worldObj, int pX, int pY, int pZ, ItemStack item)
+	{
+		return worldObj.getBlock(pX, pY, pZ).getBlockHardness(worldObj, pX, pY, pZ) * 1.5f * 20.0f;
+	}
 }

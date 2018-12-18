@@ -25,6 +25,8 @@ public abstract class LMM_EntityModeBase {
 
 	public final LMM_EntityLittleMaid owner;
 
+	public static final double limitDistance_Freedom = 400D;
+	public static final double limitDistance_Follow  = 144D;
 
 	/**
 	 * 初期化

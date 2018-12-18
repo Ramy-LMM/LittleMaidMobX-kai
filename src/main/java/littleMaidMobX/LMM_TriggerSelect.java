@@ -87,7 +87,7 @@ public class LMM_TriggerSelect {
 	/**
 	 * アイテムが指定されたトリガーに登録されているかを判定
 	 */
-	public static boolean checkWeapon(String pUsername, String pSelector, ItemStack pItemStack) {
+	public static boolean checkItem(String pUsername, String pSelector, ItemStack pItemStack) {
 		if (!selector.contains(pSelector)) {
 			return false;
 		}

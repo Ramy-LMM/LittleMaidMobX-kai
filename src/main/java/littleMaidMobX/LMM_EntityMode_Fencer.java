@@ -62,10 +62,10 @@ public class LMM_EntityMode_Fencer extends LMM_EntityModeBase {
 	public boolean changeMode(EntityPlayer pentityplayer) {
 		ItemStack litemstack = owner.maidInventory.getStackInSlot(0);
 		if (litemstack != null) {
-			if (litemstack.getItem() instanceof ItemSword || LMM_TriggerSelect.checkWeapon(owner.getMaidMaster(), "Sword", litemstack)) {
+			if (litemstack.getItem() instanceof ItemSword || LMM_TriggerSelect.checkItem(owner.getMaidMaster(), "Sword", litemstack)) {
 				owner.setMaidMode("Fencer");
 				return true;
-			} else  if (litemstack.getItem() instanceof ItemAxe || LMM_TriggerSelect.checkWeapon(owner.getMaidMaster(), "Axe", litemstack)) {
+			} else  if (litemstack.getItem() instanceof ItemAxe || LMM_TriggerSelect.checkItem(owner.getMaidMaster(), "Axe", litemstack)) {
 				owner.setMaidMode("Bloodsucker");
 				return true;
 			}
@@ -106,7 +106,7 @@ public class LMM_EntityMode_Fencer extends LMM_EntityModeBase {
 				if (litemstack == null) continue;
 				
 				// 剣
-				if (litemstack.getItem() instanceof ItemSword || LMM_TriggerSelect.checkWeapon(owner.getMaidMaster(), "Sword", litemstack)) {
+				if (litemstack.getItem() instanceof ItemSword || LMM_TriggerSelect.checkItem(owner.getMaidMaster(), "Sword", litemstack)) {
 					return li;
 				}
 				
@@ -124,7 +124,7 @@ public class LMM_EntityMode_Fencer extends LMM_EntityModeBase {
 				if (litemstack == null) continue;
 				
 				// 斧
-				if (litemstack.getItem() instanceof ItemAxe || LMM_TriggerSelect.checkWeapon(owner.getMaidMaster(), "Axe", litemstack)) {
+				if (litemstack.getItem() instanceof ItemAxe || LMM_TriggerSelect.checkItem(owner.getMaidMaster(), "Axe", litemstack)) {
 					return li;
 				}
 				

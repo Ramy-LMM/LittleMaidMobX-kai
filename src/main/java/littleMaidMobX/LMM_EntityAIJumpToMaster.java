@@ -3,7 +3,6 @@ package littleMaidMobX;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
@@ -38,8 +37,8 @@ public class LMM_EntityAIJumpToMaster extends EntityAIBase implements LMM_IEntit
 		if (theMaid.isFreedom()) {
 			// 自由行動の子は基点へジャンプ
 			if (theMaid.homeWorld != theMaid.dimension) {
-				theMaid.getMaidMasterEntity().addChatMessage(new ChatComponentText(String.format("ID:%d, %d -> %d, Change HomeWorld. reset HomePosition.",
-						theMaid.getEntityId(),theMaid.homeWorld, theMaid.worldObj.provider.dimensionId)));
+				//theMaid.getMaidMasterEntity().addChatMessage(new ChatComponentText(String.format("ID:%d, %d -> %d, Change HomeWorld. reset HomePosition.",
+				//		theMaid.getEntityId(),theMaid.homeWorld, theMaid.worldObj.provider.dimensionId)));
 				LMM_LittleMaidMobX.Debug(String.format("ID:%d, %d -> %d, Change HomeWorld. reset HomePosition.",
 						theMaid.getEntityId(),theMaid.homeWorld, theMaid.worldObj.provider.dimensionId));
 //				theMaid.func_110171_b(
@@ -54,7 +53,7 @@ public class LMM_EntityAIJumpToMaster extends EntityAIBase implements LMM_IEntit
 			/**/if (theMaid.getHomePosition().getDistanceSquared(
 					MathHelper.floor_double(theMaid.posX),
 					MathHelper.floor_double(theMaid.posY),
-					MathHelper.floor_double(theMaid.posZ)) > 400D) {
+					MathHelper.floor_double(theMaid.posZ)) > LMM_EntityModeBase.limitDistance_Freedom) {
 				jumpTarget = false;
 				/*theMaid.getMaidMasterEntity().addChatMessage(new ChatComponentText(String.format(
 						"ID:%d(%s) Jump To Home.", theMaid.getEntityId(),
@@ -68,7 +67,7 @@ public class LMM_EntityAIJumpToMaster extends EntityAIBase implements LMM_IEntit
 			jumpTarget = true;
 			theOwner = theMaid.getMaidMasterEntity();
 			if (theMaid.getAttackTarget() == null) {
-				if (theMaid.mstatMasterDistanceSq < 144D) {
+				if (theMaid.mstatMasterDistanceSq < LMM_EntityModeBase.limitDistance_Follow) {
 					return false;
 				}
 			} else {
