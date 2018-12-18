@@ -51,21 +51,10 @@ public class LMM_EntityMode_Miner extends LMM_EntityModeBase {
 		ltasks[0] = new EntityAITasks(owner.aiProfiler);
 		ltasks[1] = pDefaultTargeting;
 
-		//ltasks[0].addTask(1, owner.aiSwiming);
-		//ltasks[0].addTask(2, owner.func_70907_r());
-		//ltasks[0].addTask(3, owner.aiJumpTo);
 		ltasks[1].addTask(4, owner.aiFindBlock);
-		//ltasks[0].addTask(5, owner.aiPanic);
-
-		//ltasks[0].addTask(10, owner.aiBeg);
-		//ltasks[0].addTask(11, owner.aiBegMove);
-
 		ltasks[0].addTask(22, owner.aiCollectItem);
 
-		//ltasks[0].addTask(30, owner.aiTracer);
-		//ltasks[0].addTask(31, owner.aiFollow);
 		ltasks[1].addTask(32, owner.aiFindBlock);
-		//ltasks[0].addTask(34, owner.aiWander);
 
 		ltasks[0].addTask(52, new EntityAIWatchClosest(owner, EntityLivingBase.class, 10F));
 		ltasks[0].addTask(51, new EntityAILookIdle(owner));
@@ -129,13 +118,7 @@ public class LMM_EntityMode_Miner extends LMM_EntityModeBase {
 	@Override
 	public boolean checkItemStack(ItemStack pItemStack)
 	{
-		String ls = owner.getMaidMaster();
-		return true;/*(pItemStack.getItem() == Items.sugar
-				|| pItemStack.getItem() instanceof ItemPickaxe
-				|| TriggerSelect.checkItem(ls, "Pickaxe", pItemStack)
-				|| TriggerSelect.checkItem(ls, "Ore", pItemStack)
-				|| TriggerSelect.checkItem(ls, "Pickup", pItemStack)
-				);*/
+		return true;
 	}
 
 	@Override
@@ -196,9 +179,7 @@ public class LMM_EntityMode_Miner extends LMM_EntityModeBase {
 			timeMined = 0;
 			mineTime = MMM_Helper.getMineTime(owner.worldObj, targetX, targetY, targetZ, owner.getCurrentEquippedItem());
 
-			//owner.aiFindBlock.setEnable(false);
 			owner.aiWander.setEnable(false);
-			//owner.aiFollow.setEnable(false);
 			if (owner.getNavigator().tryMoveToXYZ(px, py, pz, 1.0F))
 			{
 				owner.playSound(LMM_EnumSound.findTarget_N, false);
@@ -243,7 +224,7 @@ public class LMM_EntityMode_Miner extends LMM_EntityModeBase {
 				}
 				else
 				{
-					theBlock.dropBlockAsItem(worldObj, targetX, targetY, targetZ, worldObj.getBlockMetadata(targetX, targetY, targetZ), 0);
+					theBlock.dropBlockAsItem(worldObj, targetX, targetY, targetZ, worldObj.getBlockMetadata(targetX, targetY, targetZ), EnchantmentHelper.getEnchantmentLevel(Enchantment.fortune.effectId, item));
 					theBlock.dropXpOnBlockBreak(worldObj, targetX, targetY, targetZ, theBlock.getExpDrop(worldObj, worldObj.getBlockMetadata(targetX, targetY, targetZ), EnchantmentHelper.getEnchantmentLevel(Enchantment.fortune.effectId, item)));
 				}
 				worldObj.setBlockToAir(targetX, targetY, targetZ);
@@ -253,9 +234,7 @@ public class LMM_EntityMode_Miner extends LMM_EntityModeBase {
 
 				timeMined = 0.0f;
 				owner.getNavigator().clearPathEntity();
-				//owner.aiFindBlock.setEnable(true);
 				owner.aiWander.setEnable(true);
-				//owner.aiFollow.setEnable(true);
 				return false;
 			}
 			else
@@ -270,108 +249,8 @@ public class LMM_EntityMode_Miner extends LMM_EntityModeBase {
 	@Override
 	public void updateAITick(int pMode)
 	{
-		if (pMode == mmode_Miner)/* && owner.getNextEquipItem() && isInvNotFull())*/
+		if (pMode == mmode_Miner)
 		{
-			/*boolean doMine = true;
-			ItemStack tool = owner.getCurrentEquippedItem();
-			ItemTool item = (ItemTool) tool.getItem();
-			World worldObj = owner.worldObj;
-
-			int ltx = targetX;
-			int lty = targetY;
-			int ltz = targetZ;
-
-			int lxx = MathHelper.floor_double(owner.posX);
-			int lyy = MathHelper.floor_double(owner.posY);
-			int lzz = MathHelper.floor_double(owner.posZ);
-
-			owner.maidAvatar.getValue();
-
-			if (!shouldBlockBeMined(targetX, targetY, targetZ) || Math.abs(ltx-lxx)>2 || Math.abs(lty-lyy)>3 || Math.abs(ltz-lzz)>2 || !canBlockBeSeen(targetX, targetY, targetZ, true, true, false))
-			{
-				owner.aiFindBlock.setEnable(true);
-				owner.aiWander.setEnable(true);
-				doMine = false;
-				ltx = lxx;
-				lty = lyy;
-				ltz = lzz;
-
-				int lil[] = {lyy, lyy - 1, lyy + 1, lyy + 2, lyy + 3};
-
-				for (int x = -1; x < 2; x++)
-				{
-					for (int z = -1; z < 2; z++)
-					{
-						for (int lyi : lil)
-						{
-							boolean isMineable = shouldBlockBeMined(lxx + x, lyi-1, lzz + z);
-							if (isMineable && (item instanceof ItemPickaxe || TriggerSelect.checkItem(owner.getMaidMaster(), "Pickaxe", tool)) && canBlockBeSeen(lxx + x, lyi - 1, lzz + z, true, true, false))
-							{
-								doMine = isMineable;
-								ltx = lxx + x;
-								lty = lyi - 1;
-								ltz = lzz + z;
-							}
-						}
-					}
-				}
-			}
-
-			if (doMine)
-			{
-				if (targetX == ltx && targetY == lty && targetZ == ltz)
-				{
-					Block theBlock = worldObj.getBlock(targetX, targetY, targetZ);
-					int completed = (int)Math.floor((timeMined/mineTime)*8);
-
-					owner.getLookHelper().setLookPosition(targetX, targetY, targetZ, 10F, owner.getVerticalFaceSpeed());
-					owner.setSwing(10, EnumSound.installation);
-					//worldObj.playSoundEffect((double)targetX+0.5D, (double)targetY+0.5D, (double)targetZ+0.5D, theBlock.stepSound.soundName, 10000.0F, 0.8F + worldObj.rand.nextFloat() * 0.2F);
-					worldObj.playSound((double)targetX+0.5D, (double)targetY+0.5D, (double)targetZ+0.5D, "dig.stone", 1.0f, (worldObj.rand.nextFloat() * 0.2F) + 0.95F, false);
-					worldObj.destroyBlockInWorldPartially(owner.getEntityId(), targetX, targetY, targetZ, completed);
-
-					if(completed >= 8)
-					{
-						if (EnchantmentHelper.getSilkTouchModifier(owner))
-						{
-							worldObj.spawnEntityInWorld(new EntityItem(worldObj, targetX, targetY, targetZ, new ItemStack(theBlock)));
-						}
-						else
-						{
-							theBlock.dropBlockAsItem(worldObj, targetX, targetY, targetZ, worldObj.getBlockMetadata(targetX, targetY, targetZ), 0);
-							theBlock.dropXpOnBlockBreak(worldObj, targetX, targetY, targetZ, theBlock.getExpDrop(worldObj, worldObj.getBlockMetadata(targetX, targetY, targetZ), EnchantmentHelper.getEnchantmentLevel(Enchantment.fortune.effectId, tool)));
-						}
-						worldObj.setBlockToAir(targetX, targetY, targetZ);
-						worldObj.destroyBlockInWorldPartially(owner.getEntityId(), targetX, targetY, targetZ, -1);
-
-						tool.damageItem(1, owner);
-
-						timeMined = 0.0f;
-						owner.getNavigator().clearPathEntity();
-						owner.aiFindBlock.setEnable(true);
-						owner.aiWander.setEnable(true);
-					}
-					else
-					{
-						String toolMaterial = item.getToolMaterialName();
-						timeMined += item.func_150913_i().getEfficiencyOnProperMaterial();
-					}
-				}
-				else
-				{
-					owner.worldObj.destroyBlockInWorldPartially(-1, targetX, targetY, targetZ, -1);
-
-					targetX = ltx;
-					targetY = lty;
-					targetZ = ltz;
-
-					timeMined = 0;
-					mineTime = Helper.getMineTime(worldObj, targetX, targetY, targetZ, tool);
-
-					owner.aiFindBlock.setEnable(false);
-					owner.aiWander.setEnable(false);
-				}*/
-
 			if (owner.getCurrentEquippedItem() == null || owner.getCurrentEquippedItem().stackSize <= 0)
 			{
 				owner.maidInventory.setInventoryCurrentSlotContents(null);
