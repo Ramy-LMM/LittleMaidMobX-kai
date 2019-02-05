@@ -71,6 +71,8 @@ littleMaidMob.mode.FreedomEX=FreedomEX
 littleMaidMob.mode.F-FreedomEX=FreedomEX
 littleMaidMob.mode.Miner=Miner
 littleMaidMob.mode.F-Miner=F-Miner
+littleMaidMob.mode.Farmer=Farmer
+littleMaidMob.mode.F-Farmer=F-Farmer
 
 littleMaidMob.text.Health=Health
 littleMaidMob.text.AP=AP

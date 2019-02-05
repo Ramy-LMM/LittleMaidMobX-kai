@@ -27,6 +27,7 @@ public abstract class LMM_EntityModeBase {
 
 	public static final double limitDistance_Freedom = 400D;
 	public static final double limitDistance_Follow  = 144D;
+	public static final int Water_Radius = 4;
 
 	/**
 	 * 初期化

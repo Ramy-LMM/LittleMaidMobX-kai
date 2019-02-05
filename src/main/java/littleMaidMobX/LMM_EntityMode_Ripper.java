@@ -53,6 +53,7 @@ public class LMM_EntityMode_Ripper extends LMM_EntityModeBase {
 		ltasks[0].addTask(6, owner.aiBeg);
 		ltasks[0].addTask(7, owner.aiBegMove);
 		ltasks[0].addTask(8, owner.aiAvoidPlayer);
+		ltasks[0].addTask(9, owner.aiCollectItem);
 //		ltasks[0].addTask(7, pentitylittlemaid.aiCloseDoor);
 //		ltasks[0].addTask(8, pentitylittlemaid.aiOpenDoor);
 //		ltasks[0].addTask(9, pentitylittlemaid.aiCollectItem);
