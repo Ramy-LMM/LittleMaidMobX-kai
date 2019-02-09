@@ -364,7 +364,7 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 	public void initModeList() {
 		// AI
 		aiBeg = new LMM_EntityAIBeg(this, 8F);
-		aiBegMove = new LMM_EntityAIBegMove(this, 1.0F);
+		aiBegMove = new LMM_EntityAIBegMove(this, 1.2F);
 		aiOpenDoor = new EntityAIOpenDoor(this, true);
 		aiCloseDoor = new EntityAIRestrictOpenDoor(this);
 		aiAvoidPlayer = new LMM_EntityAIAvoidPlayer(this, 1.0F, 3);
@@ -431,6 +431,10 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 
 	public int getMaidModeInt() {
 		return maidMode;
+	}
+
+	public int getStateWorkingInt() {
+		return mstatWorkingInt;
 	}
 
 	public String getMaidModeString() {
@@ -1179,8 +1183,10 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 						// 新しい方を残す
 						if (getEntityId() > elm.getEntityId()) {
 							LMM_LittleMaidMobX.Debug(String.format("Load Doppelganger ID:%d, %d" ,elm.getEntityId(), maidAnniversary));
+							//worldObj.getPlayerEntityByName(getMaidMaster()).addChatMessage(new ChatComponentText(String.format("Load Doppelganger ID:%d, %d" ,elm.getEntityId(), maidAnniversary)));
 							elm.setDead();
 						} else {
+							//worldObj.getPlayerEntityByName(getMaidMaster()).addChatMessage(new ChatComponentText(String.format("Load Doppelganger ID:%d, %d" ,getEntityId(), maidAnniversary)));
 							LMM_LittleMaidMobX.Debug(String.format("Load Doppelganger ID:%d, %d" ,getEntityId(), maidAnniversary));
 							setDead();
 							break;
@@ -2682,6 +2688,7 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 							// 契約記念日と、初期契約期間
 							maidContractLimit = (24000 * 7);
 							maidAnniversary = worldObj.getTotalWorldTime();
+
 							// テクスチャのアップデート:いらん？
 //							LMM_Net.sendToAllEClient(this, new byte[] {LMM_Net.LMN_Client_UpdateTexture, 0, 0, 0, 0});
 
@@ -3495,9 +3502,12 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 		return (dataWatcher.getWatchableObjectInt(dataWatch_ItemUse) & (1 << pIndex)) > 0;
 	}
 
-	public void setExperienceValue(int val)
-	{
+	public void setExperienceValue(int val) {
 		this.experienceValue = val;
+	}
+
+	public int getExperienceValue() {
+		return this.experienceValue;
 	}
 
 	public void setFlag(int par1, boolean par2) {

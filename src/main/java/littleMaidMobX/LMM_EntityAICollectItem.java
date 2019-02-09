@@ -14,13 +14,13 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 
 public class LMM_EntityAICollectItem extends EntityAIBase {
-	
+
 	protected LMM_EntityLittleMaid theMaid;
 	protected float moveSpeed;
-	protected EntityItem targetItem;
+	protected EntityItem targetItem = null;
 	protected boolean lastAvoidWater;
-	
-	
+
+
 	public LMM_EntityAICollectItem(LMM_EntityLittleMaid pEntityLittleMaid, float pmoveSpeed) {
 		theMaid = pEntityLittleMaid;
 		moveSpeed = pmoveSpeed;
@@ -36,7 +36,7 @@ public class LMM_EntityAICollectItem extends EntityAIBase {
 				int li = theMaid.getRNG().nextInt(llist.size());
 				EntityItem ei = (EntityItem)llist.get(li);
 				EntityPlayer ep = theMaid.mstatMasterEntity != null ? theMaid.mstatMasterEntity : theMaid.worldObj.getClosestPlayerToEntity(theMaid, 16F);
-				
+
 				if (!ei.isDead && ei.onGround && ei.delayBeforeCanPickup <= 0 && !ei.isBurning()
 						&& canEntityItemBeSeen(ei) && (ep == null ||
 						ep.getDistanceSq(
@@ -59,7 +59,7 @@ public class LMM_EntityAICollectItem extends EntityAIBase {
 				}
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -71,7 +71,7 @@ public class LMM_EntityAICollectItem extends EntityAIBase {
 
 	@Override
 	public boolean continueExecuting() {
-		return !targetItem.isDead && (theMaid.maidInventory.getFirstEmptyStack() > -1) && theMaid.getDistanceSqToEntity(targetItem) < 100D;
+		return targetItem != null && !targetItem.isDead && (theMaid.maidInventory.getFirstEmptyStack() > -1) && theMaid.getDistanceSqToEntity(targetItem) < 100D;
 	}
 
 	@Override
@@ -83,8 +83,10 @@ public class LMM_EntityAICollectItem extends EntityAIBase {
 
 	@Override
 	public void updateTask() {
+		if(targetItem == null) return;
+
 		theMaid.getLookHelper().setLookPositionWithEntity(targetItem, 30F, theMaid.getVerticalFaceSpeed());
-		
+
 		PathNavigate lnavigater = theMaid.getNavigator();
 		if (lnavigater.noPath()) {
 			if (targetItem.isInWater()) {

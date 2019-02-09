@@ -72,6 +72,15 @@ public class LMM_InventoryLittleMaid extends InventoryPlayer {
 	}
 
 	@Override
+	public NBTTagList writeToNBT(NBTTagList par1nbtTagList) {
+		NBTTagList tagList = par1nbtTagList;
+		if (par1nbtTagList == null) {
+			tagList = new NBTTagList();
+		}
+		return super.writeToNBT(tagList);
+	}
+
+	@Override
 	public String getInventoryName() {
 		return "InsideSkirt";
 	}
@@ -167,7 +176,7 @@ public class LMM_InventoryLittleMaid extends InventoryPlayer {
 			lexp.isFlaming = false;
 			lexp.isSmoking = entityLittleMaid.worldObj.getGameRules().getGameRuleBooleanValue("mobGriefing");
 		}
-		
+
 		armorInventory[3] = null;
 		for (int i = 0; i < getSizeInventory(); i++) {
 			ItemStack it = getStackInSlot(i);
@@ -223,6 +232,12 @@ public class LMM_InventoryLittleMaid extends InventoryPlayer {
 	public boolean addItemStackToInventory(ItemStack par1ItemStack) {
 		markDirty();
 		return super.addItemStackToInventory(par1ItemStack);
+	}
+
+	@Override
+	public void setInventorySlotContents(int index, ItemStack itemStack) {
+		markDirty();
+		super.setInventorySlotContents(index, itemStack);
 	}
 
 	/**
@@ -367,7 +382,7 @@ public class LMM_InventoryLittleMaid extends InventoryPlayer {
 	}
 
 	public static boolean isItemBurned(ItemStack pItemstack) {
-		return (pItemstack != null && 
+		return (pItemstack != null &&
 				TileEntityFurnace.getItemBurnTime(pItemstack) > 0);
 	}
 

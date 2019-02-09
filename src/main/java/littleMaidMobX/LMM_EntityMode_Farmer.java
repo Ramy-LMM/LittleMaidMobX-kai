@@ -29,8 +29,11 @@ public class LMM_EntityMode_Farmer extends LMM_EntityModeBase {
 
 	public LMM_EntityMode_Farmer(LMM_EntityLittleMaid pEntity) {
 		super(pEntity);
+	}
+
+	@Override
+	public void init() {
 		LMM_TriggerSelect.appendTriggerItem(null, "Hoe", "");
-		LMM_TriggerSelect.appendTriggerItem(null, "Seeds", "");
 	}
 
 	@Override
@@ -48,6 +51,7 @@ public class LMM_EntityMode_Farmer extends LMM_EntityModeBase {
 		ltasks[1] = pDefaultTargeting;
 
 		ltasks[0].addTask(0, owner.aiCollectItem);
+		ltasks[1].addTask(4, owner.aiFindBlock);
 
 		owner.addMaidMode(ltasks, "Farmer", mmode_Farmer);
 	}
@@ -57,7 +61,7 @@ public class LMM_EntityMode_Farmer extends LMM_EntityModeBase {
 		// TODO 自動生成されたメソッド・スタブ
 		ItemStack litemstack = owner.maidInventory.getStackInSlot(0);
 		if (litemstack != null) {
-			if (litemstack.getItem() instanceof ItemHoe)
+			if ((litemstack.getItem() instanceof ItemHoe) || (LMM_TriggerSelect.checkItem(owner.getMaidMaster(), "Hoe", litemstack)))
 			{
 				owner.setMaidMode("Farmer");
 				return true;
