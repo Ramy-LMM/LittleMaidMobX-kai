@@ -2634,6 +2634,37 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 								//par1EntityPlayer.addChatMessage(new ChatComponentText("DismissalNotice"));
 								return true;
 							}
+							else if (itemstack1.getItem() == Items.bucket) {
+								//乳搾りします
+								//胸当て着けてたら絞れませんよ
+								boolean isArmor = false;
+								ItemStack[] items = getLastActiveItems();
+								for (int i = 0; i < 4; i++) {
+									ItemStack is = maidInventory.armorItemInSlot(i);
+									if ((is != null) && (((ItemArmor)is.getItem()).armorType == 1)) {
+										isArmor = true;
+										break;
+									}
+								}
+								if (isArmor) {
+									showParticleFX("smoke", 0.05D, 0.04D, 0.05D);
+								}
+								else {
+									if (!worldObj.isRemote) {
+										MMM_Helper.decPlayerInventory(par1EntityPlayer, -1, 1);
+										ItemStack milkBucket = new ItemStack(Items.milk_bucket, 1);
+										if(this.hasCustomNameTag()) {
+											milkBucket.setStackDisplayName(this.getCustomNameTag() + "のミルク");
+										}
+										else {
+											milkBucket.setStackDisplayName("メイドさん印のミルク");
+										}
+										par1EntityPlayer.inventory.addItemStackToInventory(milkBucket);
+									}
+									showParticleFX("heart", 0.2D, 0.5D, 0.2D);
+								}
+								return true;
+							}
 						} else {
 							// ストライキ
 							if (itemstack1.getItem() == Items.sugar) {
@@ -2694,7 +2725,24 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 
 						}
 						return true;
-					} else {
+					}
+					else if (itemstack1.getItem() == Items.bucket) {
+						//見ず知らずのメイドさんに乳搾りしたらお仕置きです
+						MMM_Helper.decPlayerInventory(par1EntityPlayer, -1, 1);
+						setSwing(10, LMM_EnumSound.attack);
+						par1EntityPlayer.attackEntityFrom(DamageSource.generic, 2);
+						PotionEffect moveSpeedEffect = new PotionEffect(Potion.moveSpeed.id, 50, 5);
+						this.addPotionEffect(moveSpeedEffect);
+						if (!worldObj.isRemote) {
+							entityDropItem(new ItemStack(Items.bucket), 0.5F);
+						}
+
+						getNavigator().clearPathEntity();
+						getNavigator().tryMoveToXYZ(par1EntityPlayer.posX, par1EntityPlayer.posY, par1EntityPlayer.posZ, 1.0F);
+						getLookHelper().setLookPosition(par1EntityPlayer.posX + 0.5D, par1EntityPlayer.posY + 0.5D, par1EntityPlayer.posZ + 0.5D,10F, getVerticalFaceSpeed());
+						maidOverDriveTime.setValue(100);
+					}
+					else {
 //						worldObj.setEntityState(this, (byte)6);
 					}
 				}
