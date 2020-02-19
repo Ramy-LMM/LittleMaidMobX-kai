@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
         maven {
             name = "forge"
-            url = "http://files.minecraftforge.net/maven"
+            url = "https://files.minecraftforge.net/maven"
         }
         maven {
             name = "sonatype"
@@ -18,7 +18,7 @@ buildscript {
 apply plugin: 'forge'
 
 version = "0.0.10"
-group= "littleMaidMobX" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+group= "littleMaidMobX" // https://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "littleMaidMobX"
 
 compileJava.options.encoding = 'UTF-8'
