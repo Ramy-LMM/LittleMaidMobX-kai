@@ -3,6 +3,8 @@ package littleMaidMobX;
 import java.util.Iterator;
 import java.util.List;
 
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.entity.player.EntityPlayer;
 import mmmlibx.lib.MMM_Helper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockTNT;
@@ -38,19 +40,25 @@ public class LMM_InventoryLittleMaid extends InventoryPlayer {
 	 * スロット変更チェック用
 	 */
 	public ItemStack prevItems[];
+	
+	/**
+	 * そうｂ
+	 */
+	public ItemStack equipmentInventory[];
 
 	public LMM_InventoryLittleMaid(LMM_EntityLittleMaid par1EntityLittleMaid) {
 		super(par1EntityLittleMaid.maidAvatar);
 
 		entityLittleMaid = par1EntityLittleMaid;
 		mainInventory = new ItemStack[maxInventorySize];
+		armorInventory = new ItemStack[6];
 		prevItems = new ItemStack[mainInventory.length + armorInventory.length];
 	}
 
 	@Override
 	public void readFromNBT(NBTTagList par1nbtTagList) {
 		mainInventory = new ItemStack[maxInventorySize];
-		armorInventory = new ItemStack[4];
+		armorInventory = new ItemStack[6];
 
 		for (int i = 0; i < par1nbtTagList.tagCount(); i++) {
 			NBTTagCompound nbttagcompound = par1nbtTagList.getCompoundTagAt(i);
@@ -120,29 +128,36 @@ public class LMM_InventoryLittleMaid extends InventoryPlayer {
 	public int getTotalArmorValue() {
 		// 身に着けているアーマーの防御力の合算
 		// 頭部以外
-		ItemStack lis = armorInventory[3];
-		armorInventory[3] = null;
+		//ItemStack lis = armorInventory[3];
+		//armorInventory[3] = null;
 		// int li = super.getTotalArmorValue() * 20 / 17;
 		int li = super.getTotalArmorValue();
 		// 兜分の補正
-		for (int lj = 0; lj < armorInventory.length; lj++) {
+		for (int lj = 0; lj < armorInventory.length - 2; lj++) {
 			if (armorInventory[lj] != null
 					&& armorInventory[lj].getItem() instanceof ItemArmor) {
 				li++;
 			}
 		}
-		armorInventory[3] = lis;
+		//armorInventory[3] = lis;
+		//entityLittleMaid.mstatMasterEntity.addChatMessage(new ChatComponentText("armor: "+li));
 		return li;
 	}
 
 	@Override
 	public void damageArmor(float pDamage) {
 		// 装備アーマーに対するダメージ
-		// 頭部は除外
-		ItemStack lis = armorInventory[3];
-		armorInventory[3] = null;
-		super.damageArmor(pDamage);
-		armorInventory[3] = lis;
+		pDamage = Math.max(pDamage/4, 1);
+
+		for (int i = 0; i < armorInventory.length - 2; i++) {
+			if (armorInventory[i] != null && armorInventory[i].getItem() instanceof ItemArmor) {
+				armorInventory[i].damageItem((int)pDamage, player);
+
+				if (armorInventory[i].stackSize == 0) {
+					armorInventory[i] = null;
+				}
+			}
+		}
 	}
 /*
 	@Override
@@ -244,6 +259,7 @@ public class LMM_InventoryLittleMaid extends InventoryPlayer {
 	 * 頭部の追加アイテムを返す。
 	 */
 	public ItemStack getHeadMount() {
+		//return armorInventory[3];
 		return mainInventory[mainInventory.length - 1];
 	}
 

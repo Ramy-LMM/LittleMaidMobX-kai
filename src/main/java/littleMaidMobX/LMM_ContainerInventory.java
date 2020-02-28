@@ -1,5 +1,7 @@
 package littleMaidMobX;
 
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.inventory.IInventory;
@@ -7,6 +9,10 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
+
+import java.util.List;
+import java.util.Map;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -48,12 +54,12 @@ public class LMM_ContainerInventory extends ContainerPlayer {
 			addSlotToContainer(new Slot(iinventory, lx, 8 + lx * 18, 161 + lyoffset));
 		}
 		
-		for (int j = 0; j < 3; j++) {
+		for (int j = 0; j < 4; j++) {
 //			int j1 = j + 1;
 //			addSlotToContainer(new SlotArmor(this, linventory, linventory.getSizeInventory() - 2 - j, 8, 8 + j * 18, j1));
 
-			final int armorIndex = 1 + j; // ヘルメットはない
-			this.addSlotToContainer(new Slot(linventory, linventory.getSizeInventory() - 2 - j, 8, 8 + j * 18)
+			final int armorIndex = j;
+			this.addSlotToContainer(new Slot(linventory, linventory.getSizeInventory() - 3 - j, 8 + (j / 2) * 72, 8 + (j % 2) * 18)
 			{
 				private static final String __OBFID = "CL_00001755";
 				/**
@@ -82,6 +88,40 @@ public class LMM_ContainerInventory extends ContainerPlayer {
 				}
 			});
 		}
+
+		this.addSlotToContainer(new Slot(linventory, linventory.getSizeInventory() - 1, 8, 8 + 36)
+		{
+			private static final String __OBFID = "CL_00001755";
+			public int getSlotStackLimit()
+			{
+				return 1;
+			}
+		});
+		final LMM_EntityLittleMaid elm = pEntity;
+		this.addSlotToContainer(new Slot(linventory, linventory.getSizeInventory() - 2, 8 + 72, 8 + 36)
+		{
+			private static final String __OBFID = "CL_00001756";
+			public int getSlotStackLimit()
+			{
+				return 1;
+			}
+			/**
+			 * Check if the stack is a valid item for this slot. Always true beside for the armor slots.
+			 */
+			public boolean isItemValid(ItemStack par1ItemStack)
+			{
+				if (par1ItemStack == null) return false;
+				return par1ItemStack.getItem() == Items.written_book;
+			}
+			/**
+			 * Returns the icon index on items.png that is used as background image of the slot.
+			 */
+			@SideOnly(Side.CLIENT)
+			public IIcon getBackgroundIconIndex()
+			{
+				return elm.getItemIcon(new ItemStack(Items.written_book), 1);
+			}
+		});
 	}
 
 	@Override

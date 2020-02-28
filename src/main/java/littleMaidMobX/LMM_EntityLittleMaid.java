@@ -2287,10 +2287,10 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 	public ItemStack getEquipmentInSlot(int par1) {
 		if (par1 == 0) {
 			return getHeldItem();
-		} else if (par1 < 5) {
+		} else if (par1 < 6) {
 			return maidInventory.armorItemInSlot(par1 - 1);
 		} else {
-			return maidInventory.getStackInSlot(par1 - 5);
+			return maidInventory.getStackInSlot(par1 - 6);
 		}
 	}
 
@@ -2304,8 +2304,9 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 		par1 &= 0x0000ffff;
 		if (par1 == 0) {
 			maidInventory.setInventoryCurrentSlotContents(par2ItemStack);
-		} else if (par1 > 0 && par1 < 4) {
-			maidInventory.armorInventory[par1 - 1] = par2ItemStack;
+		}
+		else if (par1 > 0 && par1 < 4) {
+			//maidInventory.armorInventory[par1] = par2ItemStack;
 			setTextureNames();
 		} else if (par1 == 4) {
 //			maidInventory.mainInventory[mstatMaskSelect] = mstatMaskSelect > -1 ? par2ItemStack : null;
@@ -2340,6 +2341,9 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 				setTextureNames();
 			}
 			String s = par2ItemStack == null ? null : par2ItemStack.getDisplayName();
+			if(mstatMasterEntity!=null) {
+				mstatMasterEntity.addChatMessage(new ChatComponentText(String.format("ID:%d Slot(%2d:%d):%s", getEntityId(), lslotindex, lequip, s == null ? "NoItem" : s)));
+			}
 			LMM_LittleMaidMobX.Debug(String.format("ID:%d Slot(%2d:%d):%s", getEntityId(), lslotindex, lequip, s == null ? "NoItem" : s));
 		}
 	}
@@ -2362,6 +2366,7 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 
 	protected void checkMaskedMaid() {
 		// インベントリにヘルムがあるか？
+		/*
 		for (int i = maidInventory.mainInventory.length - 1; i >= 0; i--) {
 			ItemStack is = maidInventory.getStackInSlot(i);
 			if (is != null && is.getItem() instanceof ItemArmor && ((ItemArmor)is.getItem()).armorType == 0) {
@@ -2374,9 +2379,15 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 				return;
 			}
 		}
+		*/
 
-		mstatMaskSelect = -1;
-		maidInventory.armorInventory[3] = null;
+		if(maidInventory.armorInventory[3] != null) {
+			mstatMaskSelect = 3;
+		}
+		else {
+			mstatMaskSelect = -1;
+		}
+		//maidInventory.armorInventory[3] = null;
 		return;
 	}
 	/**
@@ -2384,6 +2395,7 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 	 */
 	public boolean isMaskedMaid() {
 		return mstatMaskSelect > -1;
+		
 	}
 
 	protected void checkHeadMount() {
