@@ -43,6 +43,70 @@ public class LMM_GuiInventory extends GuiContainer {
 	public GuiButton selectbutton;
 	public boolean isChangeTexture;
 	
+	private int topTicks = 0;
+	
+	private static class RenderInfoPart {
+		private static boolean shiftLock;
+
+		/**
+		 * 0: Armor, 1: Mode, 2: Free
+		 */
+		private static boolean renderInfo[] = new boolean[] {
+				true, false, true, false
+		};
+
+		private static int renderingPart = 0;
+
+		public static int getEnabledCounts() {
+			int count = 0;
+			for (boolean s: renderInfo) {
+				if (s) ++count;
+			}
+			return count;
+		}
+
+		public static void setEnabled(int index, boolean flag) {
+			renderInfo[index] = flag;
+			// Armorだけはtrueを維持
+			renderInfo[1] = true;
+			if (renderingPart == index && !flag) {
+				shiftPart();
+			}
+		}
+
+		public static boolean isEnabled(int index) {
+			try {
+				return renderInfo[index];
+			} catch (IndexOutOfBoundsException exception) {
+				return false;
+			}
+		}
+
+		public static void shiftPart() {
+			while (!isEnabled(++renderingPart)) {
+				if (renderingPart >= renderInfo.length) {
+					renderingPart = -1;
+				}
+			}
+		}
+
+		public static int getRenderingPart() {
+			return renderingPart;
+		}
+
+		public static void lock() {
+			shiftLock = true;
+		}
+
+		public static void unlock() {
+			shiftLock = false;
+		}
+
+		public static boolean islocked() {
+			return shiftLock;
+		}
+	}
+	
 	protected static final ResourceLocation fguiTex =
 			new ResourceLocation(LMM_LittleMaidMobX.DOMAIN, "textures/gui/container/littlemaidinventory.png");
 
@@ -59,6 +123,7 @@ public class LMM_GuiInventory extends GuiContainer {
 		isChangeTexture = true;
 
 		entitylittlemaid = elmaid;
+		topTicks = entitylittlemaid.ticksExisted;
 		// entitylittlemaid.setOpenInventory(true);
 	}
 
@@ -78,17 +143,19 @@ public class LMM_GuiInventory extends GuiContainer {
 	@Override
 	protected void drawGuiContainerForegroundLayer(int par1, int par2) {
 		mc.fontRenderer.drawString(StatCollector.translateToLocal(
-				lowerChestInventory.getInventoryName()), 8, 64, 0x404040);
-		mc.fontRenderer.drawString(StatCollector.translateToLocal(
-				upperChestInventory.getInventoryName()), 8, 114, 0x404040);
+				lowerChestInventory.getInventoryName()), 114, 64, 0x404040);
+		//mc.fontRenderer.drawString(StatCollector.translateToLocal(
+		//		upperChestInventory.getInventoryName()), 8, 114, 0x404040);
 //		fontRenderer.drawString(StatCollector.translateToLocal(
 //				"littleMaidMob.text.Health"), 86, 8, 0x404040);
 //		fontRenderer.drawString(StatCollector.translateToLocal(
 //				"littleMaidMob.text.AP"), 86, 32, 0x404040);
-		mc.fontRenderer.drawString(StatCollector.translateToLocal(
-				"littleMaidMob.text.STATUS"), 86, 8, 0x404040);
-		mc.fontRenderer.drawString(StatCollector.translateToLocal(
-				"littleMaidMob.mode.".concat(entitylittlemaid.getMaidModeString())), 86, 61, 0x404040);
+		//mc.fontRenderer.drawString(StatCollector.translateToLocal(
+		//		"littleMaidMob.text.STATUS"), 86, 8, 0x404040);
+		if (RenderInfoPart.getRenderingPart() == 1) {
+			mc.fontRenderer.drawString(StatCollector.translateToLocal(
+					"littleMaidMob.mode.".concat(entitylittlemaid.getMaidModeString())), 7, 64, 0x404040);
+		}
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		
 		// キャラ
@@ -151,68 +218,59 @@ public class LMM_GuiInventory extends GuiContainer {
 		displayDebuffEffects();
 		
 		// LP/AP
-		drawHeathArmor(0, 0);
-/*		
-		MMM_Client.setTexture(field_110324_m);
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		
-		boolean flag1 = (entitylittlemaid.hurtResistantTime / 3) % 2 == 1;
-		if (entitylittlemaid.hurtResistantTime < 10) {
-			flag1 = false;
-		}
-		int i1 = MathHelper.ceiling_float_int(entitylittlemaid.func_110138_aP());
-		int j1 = MathHelper.ceiling_float_int(entitylittlemaid.prevHealth);
-		rand.setSeed(updateCounter * 0x4c627);
-		
-		// AP
-		int k1 = entitylittlemaid.getTotalArmorValue();
-		for (int j2 = 0; j2 < 10; j2++) {
-			int k3 = 43 + lk;
-			if (k1 > 0) {
-				// int j5 = j + 158 - j2 * 8;
-				int j5 = lj + 86 + j2 * 8;
-				if (j2 * 2 + 1 < k1) {
-					drawTexturedModalRect(j5, k3, 34, 9, 9, 9);
-				}
-				if (j2 * 2 + 1 == k1) {
-					drawTexturedModalRect(j5, k3, 25, 9, 9, 9);
-				}
-				if (j2 * 2 + 1 > k1) {
-					drawTexturedModalRect(j5, k3, 16, 9, 9, 9);
-				}
-			}
-			
-			// LP
-			int k5 = 0;
-			if (flag1) {
-				k5 = 1;
-			}
-			int i6 = lj + 86 + j2 * 8;
-			k3 = 19 + lk;
-			if (i1 <= 4) {
-				k3 += rand.nextInt(2);
-			}
-			drawTexturedModalRect(i6, k3, 16 + k5 * 9, 0, 9, 9);
-			if (flag1) {
-				if (j2 * 2 + 1 < j1) {
-					drawTexturedModalRect(i6, k3, 70, 0, 9, 9);
-				}
-				if (j2 * 2 + 1 == j1) {
-					drawTexturedModalRect(i6, k3, 79, 0, 9, 9);
-				}
-			}
-			if (j2 * 2 + 1 < i1) {
-				drawTexturedModalRect(i6, k3, 52, 0, 9, 9);
-			}
-			if (j2 * 2 + 1 == i1) {
-				drawTexturedModalRect(i6, k3, 61, 0, 9, 9);
-			}
-		}
-*/
-//		test(i, j);
+		//drawHealthArmor(0, 0);
+		drawArmor();
+		drawHealthBar();
 	}
 
-	protected void drawHeathArmor(int par1, int par2) {
+	protected void drawHealthBar() {
+		float lhealth = entitylittlemaid.getHealth();
+		float maxHealth = (float)entitylittlemaid.getEntityAttribute(SharedMonsterAttributes.maxHealth).getAttributeValue();
+		// LPゲージ
+		drawGradientRect(guiLeft+97, guiTop+7, guiLeft+168, guiTop+18, 0x80202020, 0x80202020);
+		if(lhealth > 0) {
+			drawGradientRect(guiLeft+98, guiTop+8, guiLeft + 98 + MathHelper.ceiling_float_int(69.0F * lhealth / maxHealth), guiTop+17, 0xf0008000, 0xf000f000);
+		}
+		else {
+			drawGradientRect(guiLeft+98, guiTop+8, guiLeft + 98, guiTop+17, 0xf0008000, 0xf000f000);
+		}
+		mc.fontRenderer.drawString(StatCollector.translateToLocal(
+				lhealth+"/"+maxHealth), guiLeft+99, guiTop+9, 0x404040);
+	}
+	protected void drawArmor() {
+		Client.setTexture(icons);
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		
+		int ldrawx;
+		int ldrawy;
+		
+		// AP
+		int larmor = entitylittlemaid.getTotalArmorValue();
+		if (larmor == 0) {
+			RenderInfoPart.setEnabled(0, false);
+		} else if (larmor > 0) {
+			RenderInfoPart.setEnabled(0, true);
+			if (RenderInfoPart.getRenderingPart() == 0) {
+				ldrawy = guiTop + 64;
+				for (int li = 0; li < 10; ++li) {
+					if (larmor > 0) {
+						ldrawx = guiLeft + li * 8 + 7;
+						
+						if (li * 2 + 1 < larmor) {
+							this.drawTexturedModalRect(ldrawx, ldrawy, 34, 9, 9, 9);
+						}
+						if (li * 2 + 1 == larmor) {
+							this.drawTexturedModalRect(ldrawx, ldrawy, 25, 9, 9, 9);
+						}
+						if (li * 2 + 1 > larmor) {
+							this.drawTexturedModalRect(ldrawx, ldrawy, 16, 9, 9, 9);
+						}
+					}
+				}
+			}
+		}
+	}
+	protected void drawHealthArmor(int par1, int par2) {
 		boolean var3 = entitylittlemaid.hurtResistantTime / 3 % 2 == 1;
 		
 		if (entitylittlemaid.hurtResistantTime < 10) {
@@ -247,19 +305,26 @@ public class LMM_GuiInventory extends GuiContainer {
 		
 		// AP
 		int larmor = entitylittlemaid.getTotalArmorValue();
-		ldrawy = guiTop + 36;
-		for (int li = 0; li < 10; ++li) {
-			if (larmor > 0) {
-				ldrawx = guiLeft + li * 8 + 86;
-				
-				if (li * 2 + 1 < larmor) {
-					this.drawTexturedModalRect(ldrawx, ldrawy, 34, 9, 9, 9);
-				}
-				if (li * 2 + 1 == larmor) {
-					this.drawTexturedModalRect(ldrawx, ldrawy, 25, 9, 9, 9);
-				}
-				if (li * 2 + 1 > larmor) {
-					this.drawTexturedModalRect(ldrawx, ldrawy, 16, 9, 9, 9);
+		if (larmor == 0) {
+			RenderInfoPart.setEnabled(1, false);
+		} else if (larmor > 0) {
+			RenderInfoPart.setEnabled(1, true);
+			if (RenderInfoPart.getRenderingPart() == 1) {
+				ldrawy = guiTop + 64;
+				for (int li = 0; li < 10; ++li) {
+					if (larmor > 0) {
+						ldrawx = guiLeft + li * 8 + 7;
+						
+						if (li * 2 + 1 < larmor) {
+							this.drawTexturedModalRect(ldrawx, ldrawy, 34, 9, 9, 9);
+						}
+						if (li * 2 + 1 == larmor) {
+							this.drawTexturedModalRect(ldrawx, ldrawy, 25, 9, 9, 9);
+						}
+						if (li * 2 + 1 > larmor) {
+							this.drawTexturedModalRect(ldrawx, ldrawy, 16, 9, 9, 9);
+						}
+					}
 				}
 			}
 		}
@@ -334,6 +399,12 @@ public class LMM_GuiInventory extends GuiContainer {
 
 	@Override
 	public void drawScreen(int i, int j, float f) {
+		if ((entitylittlemaid.ticksExisted - topTicks) % 30 == 0) {
+			if (!RenderInfoPart.islocked())RenderInfoPart.shiftPart();
+			RenderInfoPart.lock();
+		} else {
+			RenderInfoPart.unlock();
+		}
 		super.drawScreen(i, j, f);
 		xSize_lo = i;
 		ySize_lo = j;
