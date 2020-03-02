@@ -6,6 +6,7 @@ import java.util.List;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.entity.player.EntityPlayer;
 import mmmlibx.lib.MMM_Helper;
+import mmmlibx.lib.ItemHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockTNT;
 import net.minecraft.block.material.Material;
@@ -31,7 +32,7 @@ public class LMM_InventoryLittleMaid extends InventoryPlayer {
 	/**
 	 * 最大インベントリ数
 	 */
-	public static final int maxInventorySize = 18;
+	public static final int maxInventorySize = 20;
 	/**
 	 * オーナー
 	 */
@@ -40,25 +41,20 @@ public class LMM_InventoryLittleMaid extends InventoryPlayer {
 	 * スロット変更チェック用
 	 */
 	public ItemStack prevItems[];
-	
-	/**
-	 * そうｂ
-	 */
-	public ItemStack equipmentInventory[];
 
 	public LMM_InventoryLittleMaid(LMM_EntityLittleMaid par1EntityLittleMaid) {
 		super(par1EntityLittleMaid.maidAvatar);
 
 		entityLittleMaid = par1EntityLittleMaid;
 		mainInventory = new ItemStack[maxInventorySize];
-		armorInventory = new ItemStack[6];
-		prevItems = new ItemStack[mainInventory.length + armorInventory.length];
+		armorInventory = new ItemStack[4];
+		prevItems = new ItemStack[getSizeInventory()];
 	}
 
 	@Override
 	public void readFromNBT(NBTTagList par1nbtTagList) {
 		mainInventory = new ItemStack[maxInventorySize];
-		armorInventory = new ItemStack[6];
+		armorInventory = new ItemStack[4];
 
 		for (int i = 0; i < par1nbtTagList.tagCount(); i++) {
 			NBTTagCompound nbttagcompound = par1nbtTagList.getCompoundTagAt(i);
@@ -81,11 +77,12 @@ public class LMM_InventoryLittleMaid extends InventoryPlayer {
 
 	@Override
 	public NBTTagList writeToNBT(NBTTagList par1nbtTagList) {
+		NBTTagList result = super.writeToNBT(par1nbtTagList);
 		NBTTagList tagList = par1nbtTagList;
 		if (par1nbtTagList == null) {
 			tagList = new NBTTagList();
 		}
-		return super.writeToNBT(tagList);
+		return result;
 	}
 
 	@Override
@@ -149,7 +146,7 @@ public class LMM_InventoryLittleMaid extends InventoryPlayer {
 		// 装備アーマーに対するダメージ
 		pDamage = Math.max(pDamage/4, 1);
 
-		for (int i = 0; i < armorInventory.length - 2; i++) {
+		for (int i = 0; i < armorInventory.length; i++) {
 			if (armorInventory[i] != null && armorInventory[i].getItem() instanceof ItemArmor) {
 				armorInventory[i].damageItem((int)pDamage, player);
 
@@ -192,7 +189,7 @@ public class LMM_InventoryLittleMaid extends InventoryPlayer {
 			lexp.isSmoking = entityLittleMaid.worldObj.getGameRules().getGameRuleBooleanValue("mobGriefing");
 		}
 
-		armorInventory[3] = null;
+		//armorInventory[3] = null;
 		for (int i = 0; i < getSizeInventory(); i++) {
 			ItemStack it = getStackInSlot(i);
 			if (it != null) {
@@ -248,25 +245,109 @@ public class LMM_InventoryLittleMaid extends InventoryPlayer {
 		markDirty();
 		return super.addItemStackToInventory(par1ItemStack);
 	}
+	
+	@Override
+	public boolean isItemValidForSlot(int index, ItemStack stack) {
+		if (stack != null && index >= maxInventorySize && index < getSizeInventory()) {
+			int armorSlotIndex = index - maxInventorySize;
+			for(int i = 0; i < 4; i++) {
+				if (stack.getItem().isValidArmor(stack, i, entityLittleMaid)) {
+					return true;
+				}
+			}
+		} 
+		else if (index >= 0 && index < getSizeInventory()) {
+			return true;
+		}
+		return false;
+	}
+
+	public void setInventoryCurrentSlotContents(ItemStack itemstack) {
+		if (currentItem > -1) {
+			markDirty();
+			setInventorySlotContents(currentItem, itemstack);
+		}
+	}
 
 	@Override
 	public void setInventorySlotContents(int index, ItemStack itemStack) {
 		markDirty();
-		super.setInventorySlotContents(index, itemStack);
+		if (isItemValidForSlot(index, itemStack)) {
+			if (index >= maxInventorySize) {
+				armorInventory[index - maxInventorySize] = itemStack;
+			}
+			else {
+				mainInventory[index] = itemStack;
+			}
+		}
+	}
+	
+	@Override
+	public ItemStack getStackInSlot(int index) {
+		ItemStack pItemStack = null;
+		if ((index >= maxInventorySize) && (index < getSizeInventory())) {
+			pItemStack = armorInventory[index - maxInventorySize];
+		}
+		else if (index > -1 && index < maxInventorySize) {
+			pItemStack = mainInventory[index];
+		}
+
+		if ((pItemStack != null) && (pItemStack.stackSize <= 0)) {
+			setInventorySlotContents(index, null);
+			pItemStack = null;
+		}
+
+		return pItemStack;
+	}
+	
+	@Override
+	public ItemStack decrStackSize(int index, int count) {
+		ItemStack target, returned = null;
+		if ((target = getStackInSlot(index)) != null) {
+			returned = target.splitStack(count);
+			if (target.stackSize == 0) {
+				setInventorySlotContents(index, null);
+			}
+			return returned;
+		}
+		return null;
 	}
 
+	public ItemStack removeStackFromSlot(int index) {
+		markDirty();
+		ItemStack aStack = null;
+		if (index >= maxInventorySize) {
+			aStack = ItemStack.copyItemStack(armorInventory[index - maxInventorySize]);
+			armorInventory[index - maxInventorySize] = null;
+		} 
+		else if(index >= 0){
+			aStack = ItemStack.copyItemStack(mainInventory[index]);
+			mainInventory[index] = null;
+		}
+		return aStack;
+	}
+	
+	public boolean isItemBurned(int index) {
+		// 燃えるアイテムか?
+		return index > -1 && ItemHelper.isItemBurned(getStackInSlot(index));
+	}
+
+	public boolean isItemSmelting(int index) {
+		// 燃えるアイテムか?
+		return ItemHelper.isItemSmelting(getStackInSlot(index));
+	}
+
+	public boolean isItemExplord(int index) {
+		// 爆発物？
+		return (index >= 0) && ItemHelper.isItemExplord(getStackInSlot(index));
+	}
+	
 	/**
 	 * 頭部の追加アイテムを返す。
 	 */
 	public ItemStack getHeadMount() {
 		//return armorInventory[3];
 		return mainInventory[mainInventory.length - 1];
-	}
-
-	public void setInventoryCurrentSlotContents(ItemStack itemstack) {
-		if (currentItem > -1) {
-			setInventorySlotContents(currentItem, itemstack);
-		}
 	}
 
 	protected int getInventorySlotContainItem(Item item) {
@@ -286,8 +367,8 @@ public class LMM_InventoryLittleMaid extends InventoryPlayer {
 			// if (mainInventory[j] != null &&
 			// mainInventory[j].getItem().getClass().isAssignableFrom(itemClass))
 			// {
-			if (mainInventory[j] != null
-					&& itemClass.isAssignableFrom(mainInventory[j].getItem().getClass())) {
+			if (mainInventory[j] != null &&
+				itemClass.isAssignableFrom(mainInventory[j].getItem().getClass())) {
 				return j;
 			}
 		}
@@ -323,10 +404,8 @@ public class LMM_InventoryLittleMaid extends InventoryPlayer {
 		// インベントリの最初の食料を返す
 		for (int j = 0; j < mainInventory.length; j++) {
 			ItemStack mi = mainInventory[j];
-			if (mi != null && mi.getItem() instanceof ItemFood) {
-				if (((ItemFood) mi.getItem()).func_150905_g(mi) > 0) {
-					return j;
-				}
+			if(ItemHelper.getFoodAmount(mi) > 0) {
+				return j;
 			}
 		}
 		return -1;
@@ -359,8 +438,7 @@ public class LMM_InventoryLittleMaid extends InventoryPlayer {
 				List list = ((ItemPotion) is.getItem()).getEffects(is);
 				nextPotion: if (list != null) {
 					PotionEffect potioneffect;
-					for (Iterator iterator = list.iterator(); iterator
-							.hasNext();) {
+					for (Iterator iterator = list.iterator(); iterator.hasNext();) {
 						potioneffect = (PotionEffect) iterator.next();
 						if (potioneffect.getPotionID() == potionID) break;
 						if (potioneffect.getPotionID() == Potion.heal.id) {
@@ -390,37 +468,6 @@ public class LMM_InventoryLittleMaid extends InventoryPlayer {
 		}
 
 		return -1;
-	}
-
-	public boolean isItemBurned(int index) {
-		// 燃えるアイテムか?
-		return index > -1 && isItemBurned(getStackInSlot(index));
-	}
-
-	public static boolean isItemBurned(ItemStack pItemstack) {
-		return (pItemstack != null &&
-				TileEntityFurnace.getItemBurnTime(pItemstack) > 0);
-	}
-
-	public boolean isItemSmelting(int index) {
-		// 燃えるアイテムか?
-		return isItemSmelting(getStackInSlot(index));
-	}
-
-	public static boolean isItemSmelting(ItemStack pItemstack) {
-		return (pItemstack != null && MMM_Helper.getSmeltingResult(pItemstack) != null);
-	}
-
-	public boolean isItemExplord(int index) {
-		// 爆発物？
-		return (index >= 0) && isItemExplord(getStackInSlot(index));
-	}
-
-	public static boolean isItemExplord(ItemStack pItemstack) {
-		if (pItemstack == null)
-			return false;
-		Item li = pItemstack.getItem();
-		return (pItemstack != null && li instanceof ItemBlock && Block.getBlockFromItem(li).getMaterial() == Material.tnt);
 	}
 
 	// インベントリの転送関連

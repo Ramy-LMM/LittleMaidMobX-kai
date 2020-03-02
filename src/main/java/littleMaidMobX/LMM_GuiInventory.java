@@ -237,6 +237,7 @@ public class LMM_GuiInventory extends GuiContainer {
 		mc.fontRenderer.drawString(StatCollector.translateToLocal(
 				lhealth+"/"+maxHealth), guiLeft+99, guiTop+9, 0x404040);
 	}
+	
 	protected void drawArmor() {
 		Client.setTexture(icons);
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -269,7 +270,24 @@ public class LMM_GuiInventory extends GuiContainer {
 				}
 			}
 		}
+		
+		ldrawy = guiTop + 64;
+		if (entitylittlemaid.isInsideOfMaterial(Material.water)) {
+			int var23 = entitylittlemaid.getAir();
+			int var35 = MathHelper.ceiling_double_int((double) (var23 - 2) * 10.0D / 300.0D);
+			int var25 = MathHelper.ceiling_double_int((double) var23 * 10.0D / 300.0D) - var35;
+			
+			for (int var26 = 0; var26 < var35 + var25; ++var26) {
+				ldrawx = guiLeft + var26 * 8 + 7;
+				if (var26 < var35) {
+					this.drawTexturedModalRect(ldrawx, ldrawy, 16, 9, 9, 9);
+				} else {
+					this.drawTexturedModalRect(ldrawx, ldrawy, 25, 9, 9, 9);
+				}
+			}
+		}
 	}
+	
 	protected void drawHealthArmor(int par1, int par2) {
 		boolean var3 = entitylittlemaid.hurtResistantTime / 3 % 2 == 1;
 		

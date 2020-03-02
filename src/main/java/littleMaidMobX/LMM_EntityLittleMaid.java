@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
-
+import mmmlibx.lib.ItemHelper;
 import mmmlibx.lib.ITextureEntity;
 import mmmlibx.lib.MMMLib;
 import mmmlibx.lib.MMM_Counter;
@@ -967,9 +967,9 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 	public boolean isBreedingItem(ItemStack par1ItemStack) {
 		// お好みは何？
 		if (isContractEX()) {
-			return par1ItemStack.getItem() == Items.sugar;
+			return ItemHelper.isSugar(par1ItemStack);
 		} else {
-			return par1ItemStack.getItem() == Items.cake;
+			return ItemHelper.isCake(par1ItemStack);
 		}
 	}
 
@@ -2019,24 +2019,22 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 			// アイテム使用状態の更新
 			dataWatcher.updateObject(dataWatch_ItemUse, litemuse);
 			// インベントリの更新
-//			if (!mstatOpenInventory) {
-				for (int li = 0 ;li < maidInventory.getSizeInventory(); li++) {
-					boolean lchange = false;
-					int lselect = 0xff;
-					// 選択装備が変わった
-					for (int lj = 0; lj < mstatSwingStatus.length; lj++) {
-						lchange = mstatSwingStatus[lj].checkChanged();
-						if (mstatSwingStatus[lj].index == li) {
-							lselect = lj;
-						}
+			for (int li = 0 ;li < maidInventory.getSizeInventory(); li++) {
+				boolean lchange = false;
+				int lselect = 0xff;
+				// 選択装備が変わった
+				for (int lj = 0; lj < mstatSwingStatus.length; lj++) {
+					lchange = mstatSwingStatus[lj].checkChanged();
+					if (mstatSwingStatus[lj].index == li) {
+						lselect = lj;
 					}
-					// インベントリの中身が変わった
-					if (lchange || maidInventory.isChanged(li)) {
-						((WorldServer)worldObj).getEntityTracker().func_151247_a(this, new S04PacketEntityEquipment(this.getEntityId(), (li | lselect << 8) + 5, maidInventory.getStackInSlot(li)));
-						maidInventory.resetChanged(li);
-						LMM_LittleMaidMobX.Debug(String.format("ID:%d-%s - Slot(%x:%d-%d,%d) Update.", getEntityId(), worldObj.isRemote ? "Client" : "Server", lselect, li, mstatSwingStatus[0].index, mstatSwingStatus[1].index));
-					}
-//				}
+				}
+				// インベントリの中身が変わった
+				if (lchange || maidInventory.isChanged(li)) {
+					((WorldServer)worldObj).getEntityTracker().func_151247_a(this, new S04PacketEntityEquipment(this.getEntityId(), (li | lselect << 8) + 5, maidInventory.getStackInSlot(li)));
+					maidInventory.resetChanged(li);
+					LMM_LittleMaidMobX.Debug(String.format("ID:%d-%s - Slot(%x:%d-%d,%d) Update.", getEntityId(), worldObj.isRemote ? "Client" : "Server", lselect, li, mstatSwingStatus[0].index, mstatSwingStatus[1].index));
+				}
 			}
 
 			// 弓構え
@@ -2200,6 +2198,13 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 		checkClockMaid();
 		checkMaskedMaid();
 		checkHeadMount();
+		if ((getActiveModeClass() != null) && maidInventory.isChanged(0)) {
+			worldObj.setEntityState(this, (byte)11);
+			if (!worldObj.isRemote) {
+				setMaidModeAuto(getMaidMasterEntity());
+				setMaidWait(false);
+			}
+		}
 		getNextEquipItem();
 //		setArmorTextureValue();
 	}
@@ -2216,17 +2221,23 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 		int li;
 		if (isActiveModeClass()) {
 			li = getActiveModeClass().getNextEquipItem(maidMode);
-		} else {
+		} 
+		else {
 			li = -1;
 		}
 		setEquipItem(maidDominantArm, li);
 		return li > -1;
 	}
-
+	
+	public ItemStack getHandSlotForModeChange() {
+		return maidInventory.getStackInSlot(0);
+	}
+	
 	public void setEquipItem(int pArm, int pIndex) {
 		if (pArm == maidDominantArm) {
 			maidInventory.currentItem = pIndex;
 		}
+		maidInventory.currentItem = pIndex;
 		int li = mstatSwingStatus[pArm].index;
 		if (li != pIndex) {
 			if (li > -1) {
@@ -2287,11 +2298,12 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 	public ItemStack getEquipmentInSlot(int par1) {
 		if (par1 == 0) {
 			return getHeldItem();
-		} else if (par1 < 6) {
-			return maidInventory.armorItemInSlot(par1 - 1);
+		} else if (par1 >= 0 && par1 < 4) {
+			return maidInventory.armorItemInSlot(par1);
 		} else {
-			return maidInventory.getStackInSlot(par1 - 6);
+			return maidInventory.getStackInSlot(par1);
 		}
+		//return maidInventory.getStackInSlot(par1);
 	}
 
 	@Override
@@ -2302,19 +2314,10 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 	@Override
 	public void setCurrentItemOrArmor(int par1, ItemStack par2ItemStack) {
 		par1 &= 0x0000ffff;
-		if (par1 == 0) {
+		if(par1 == 0) {
 			maidInventory.setInventoryCurrentSlotContents(par2ItemStack);
 		}
-		else if (par1 > 0 && par1 < 4) {
-			//maidInventory.armorInventory[par1] = par2ItemStack;
-			setTextureNames();
-		} else if (par1 == 4) {
-//			maidInventory.mainInventory[mstatMaskSelect] = mstatMaskSelect > -1 ? par2ItemStack : null;
-			if (mstatMaskSelect > -1) {
-				maidInventory.mainInventory[mstatMaskSelect] = par2ItemStack;
-			}
-			setTextureNames();
-		} else {
+		else {
 			par1 -= 5;
 			// 持ち物のアップデート
 			// 独自拡張:普通にスロット番号の通り、上位８ビットは装備スロット
@@ -2322,11 +2325,7 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 			int lslotindex = par1 & 0x7f;
 			int lequip = (par1 >>> 8) & 0xff;
 			maidInventory.setInventorySlotContents(lslotindex, par2ItemStack);
-			maidInventory.resetChanged(lslotindex);	// これは意味ないけどな。
 			maidInventory.inventoryChanged = true;
-//			if (par1 >= maidInventory.mainInventory.length) {
-//				LMM_Client.setArmorTextureValue(this);
-//			}
 
 			for (LMM_SwingStatus lss: mstatSwingStatus) {
 				if (lslotindex == lss.index) {
@@ -2340,12 +2339,71 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 			if (lslotindex >= maidInventory.maxInventorySize) {
 				setTextureNames();
 			}
+		}
+		/*
+		par1 -= 5;
+		int lslotindex = par1 & 0x7f;
+		int lequip = (par1 >>> 8) & 0xff;
+		maidInventory.setInventorySlotContents(lslotindex, par2ItemStack);
+		String s = par2ItemStack == null ? null : par2ItemStack.getDisplayName();
+		if(mstatMasterEntity != null) {
+			//mstatMasterEntity.addChatMessage(new ChatComponentText(String.format("ID:%d Slot(%2d:%d):%s", par1, lslotindex, LMM_InventoryLittleMaid.handInventoryOffset, s == null ? "NoItem" : s)));
+		}
+		maidInventory.inventoryChanged = true;
+		if((lslotindex == LMM_InventoryLittleMaid.handInventoryOffset)) {
+			worldObj.setEntityState(this, (byte)11);
+			if(!worldObj.isRemote) {
+				setFreedom(isFreedom());
+				setMaidModeAuto(mstatMasterEntity);
+				if(mstatMasterEntity != null) {
+					mstatMasterEntity.addChatMessage(new ChatComponentText(String.format("not Remote.")));
+				}
+			}
+		}
+		if (par1 > 0 && par1 < 4) {
+			int lslotindex = par1 & 0x7f;
+			int lequip = (par1 >>> 8) & 0xff;
+			String s = par2ItemStack == null ? null : par2ItemStack.getDisplayName();
+			if(mstatMasterEntity!=null) {
+				mstatMasterEntity.addChatMessage(new ChatComponentText(String.format("ID:%d Slot(%2d:%d):%s", par1, lslotindex, lequip, s == null ? "NoItem" : s)));
+			}
+			maidInventory.setInventorySlotContents(par1, par2ItemStack);
+			//maidInventory.armorInventory[par1] = par2ItemStack;
+			setTextureNames();
+		}
+		else {
+			par1 -= 5;
+			// 持ち物のアップデート
+			// 独自拡張:普通にスロット番号の通り、上位８ビットは装備スロット
+			// par1はShortで渡されるのでそのように。
+			int lslotindex = par1 & 0x7f;
+			int lequip = (par1 >>> 8) & 0xff;
+			//maidInventory.setInventorySlotContents(lslotindex, par2ItemStack);
+			//maidInventory.resetChanged(lslotindex);	// これは意味ないけどな。
+			maidInventory.inventoryChanged = true;
+//			if (par1 >= maidInventory.mainInventory.length) {
+//				LMM_Client.setArmorTextureValue(this);
+//			}
+
+			for (LMM_SwingStatus lss: mstatSwingStatus) {
+				if (lslotindex == lss.index) {
+					lss.index = -1;
+				}
+			}
+			if (lequip != 0xff) {
+				//setEquipItem(lequip, lslotindex);
+//				mstatSwingStatus[lequip].index = lslotindex;
+			}
+			if (lslotindex >= maidInventory.maxInventorySize) {
+				setTextureNames();
+			}
 			String s = par2ItemStack == null ? null : par2ItemStack.getDisplayName();
 			if(mstatMasterEntity!=null) {
 				mstatMasterEntity.addChatMessage(new ChatComponentText(String.format("ID:%d Slot(%2d:%d):%s", getEntityId(), lslotindex, lequip, s == null ? "NoItem" : s)));
 			}
 			LMM_LittleMaidMobX.Debug(String.format("ID:%d Slot(%2d:%d):%s", getEntityId(), lslotindex, lequip, s == null ? "NoItem" : s));
 		}
+		*/
 	}
 
 	@Override
@@ -2516,7 +2574,7 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 						}
 						if (isRemainsContract()) {
 							// 通常
-							if (itemstack1.getItem() == Items.sugar) {
+							if (ItemHelper.isSugar(itemstack1.getItem())) {
 								// モード切替
 								MMM_Helper.decPlayerInventory(par1EntityPlayer, -1, 1);
 								eatSugar(false, true);
@@ -2526,22 +2584,8 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 								if (!worldObj.isRemote) {
 									setFreedom(isFreedom());
 									if (isMaidWait()) {
-										// 動作モードの切替
-										boolean lflag = false;
-										setActiveModeClass(null);
-										for (int li = 0; li < maidEntityModeList.size() && !lflag; li++) {
-											lflag = maidEntityModeList.get(li).changeMode(par1EntityPlayer);
-											if (lflag) {
-												setActiveModeClass(maidEntityModeList.get(li));
-											}
-										}
-										if (!lflag) {
-											setMaidMode("Escorter");
-											setEquipItem(-1);
-//											maidInventory.currentItem = -1;
-										}
+										setMaidModeAuto(par1EntityPlayer);
 										setMaidWait(false);
-										getNextEquipItem();
 									} else {
 										// 待機
 										setMaidWait(true);
@@ -2679,11 +2723,11 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 							}
 						} else {
 							// ストライキ
-							if (itemstack1.getItem() == Items.sugar) {
+							if (ItemHelper.isSugar(itemstack1)) {
 								// 受取拒否
 								worldObj.setEntityState(this, (byte)10);
 								return true;
-							} else if (itemstack1.getItem() == Items.cake) {
+							} else if (ItemHelper.isCake(itemstack1)) {
 								// 再契約
 								MMM_Helper.decPlayerInventory(par1EntityPlayer, -1, 1);
 								maidContractLimit = (24000 * 7);
@@ -2707,7 +2751,7 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 			} else {
 				// 未契約
 				if (itemstack1 != null) {
-					if (itemstack1.getItem() == Items.cake) {
+					if (ItemHelper.isCake(itemstack1)) {
 						// 契約
 						MMM_Helper.decPlayerInventory(par1EntityPlayer, -1, 1);
 
@@ -2771,7 +2815,40 @@ public class LMM_EntityLittleMaid extends EntityTameable implements ITextureEnti
 
 		return false;
 	}
+	
+	/**
+	 * Set maid's mode automatically.
+	 * @return whether the mode was changed
+	 */
+	private boolean setMaidModeAuto(EntityPlayer par1EntityPlayer) {
+		if(par1EntityPlayer == null) return false;
+		
+		boolean lflag = false;
+		String orgnMode = getMaidModeString();
 
+		setActiveModeClass(null);
+		for (int li = 0; li < maidEntityModeList.size() && !lflag; li++) {
+			lflag = maidEntityModeList.get(li).changeMode(par1EntityPlayer);
+			if (lflag) {
+				setActiveModeClass(maidEntityModeList.get(li));
+			}
+		}
+		par1EntityPlayer.addChatMessage(new ChatComponentText(String.format("ID:%d",lflag == true ? 1 : 0)));
+		if (!lflag) {
+			setMaidMode("Escorter");
+			setEquipItem(-1);
+//			maidInventory.currentItem = -1;
+		}
+		getNextEquipItem();
+
+		if (!orgnMode.equals(getMaidModeString())) {
+			clearTilePosAll();
+			getNavigator().clearPathEntity();
+			setAttackTarget(null);
+			return true;
+		}
+		return false;
+	}
 	// メイドの契約設定
 	@Override
 	public boolean isTamed() {

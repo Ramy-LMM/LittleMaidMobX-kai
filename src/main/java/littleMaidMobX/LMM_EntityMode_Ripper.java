@@ -1,5 +1,6 @@
 package littleMaidMobX;
 
+import mmmlibx.lib.ItemHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAILookIdle;
@@ -320,7 +321,7 @@ public class LMM_EntityMode_Ripper extends LMM_EntityModeBase {
 	@Override
 	public boolean damageEntity(int pMode, DamageSource par1DamageSource, float par2) {
 		// 起爆
-		if (pMode == mmode_Detonator && owner.maidInventory.isItemExplord(owner.getCurrentEquippedItem())) {
+		if (pMode == mmode_Detonator && ItemHelper.isItemExplord(owner.getCurrentEquippedItem())) {
 			if (timeSinceIgnited == -1) {
 				owner.playSound("random.fuse", 1.0F, 0.5F);
 				owner.getDataWatcher().updateObject(LMM_Statics.dataWatch_Free, Integer.valueOf(1));

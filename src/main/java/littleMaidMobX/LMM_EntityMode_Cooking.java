@@ -1,5 +1,6 @@
 package littleMaidMobX;
 
+import mmmlibx.lib.ItemHelper;
 import net.minecraft.entity.ai.EntityAITasks;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
@@ -85,7 +86,7 @@ public class LMM_EntityMode_Cooking extends LMM_EntityModeBlockBase {
 
 	@Override
 	public boolean checkItemStack(ItemStack pItemStack) {
-		return LMM_InventoryLittleMaid.isItemBurned(pItemStack) || LMM_InventoryLittleMaid.isItemSmelting(pItemStack);
+		return ItemHelper.isItemBurned(pItemStack) || ItemHelper.isItemSmelting(pItemStack);
 	}
 
 	@Override
@@ -106,7 +107,7 @@ public class LMM_EntityMode_Cooking extends LMM_EntityModeBlockBase {
 	public boolean shouldBlock(int pMode) {
 		return owner.maidTileEntity instanceof TileEntityFurnace &&
 				(((TileEntityFurnace)owner.maidTileEntity).isBurning() ||
-				owner.maidInventory.isItemBurned(owner.getCurrentEquippedItem()));
+				ItemHelper.isItemBurned(owner.getCurrentEquippedItem()));
 	}
 
 	@Override
@@ -185,7 +186,7 @@ public class LMM_EntityMode_Cooking extends LMM_EntityModeBlockBase {
 			if (!lflag && ltile.getStackInSlot(1) == null && ltile.getStackInSlot(0) != null) {
 				owner.getNextEquipItem();
 				litemstack = owner.getCurrentEquippedItem();
-				if (LMM_InventoryLittleMaid.isItemBurned(litemstack)) {
+				if (ItemHelper.isItemBurned(litemstack)) {
 					if (litemstack.stackSize >= ltile.getInventoryStackLimit()) {
 						ltile.setInventorySlotContents(1, litemstack.splitStack(ltile.getInventoryStackLimit()));
 					} else {
@@ -223,7 +224,7 @@ public class LMM_EntityMode_Cooking extends LMM_EntityModeBlockBase {
 					owner.playSound("random.pop");
 					owner.setSwing(5, LMM_EnumSound.Null);
 					owner.getNextEquipItem();
-					lflag = owner.maidInventory.isItemBurned(owner.getCurrentEquippedItem());
+					lflag = ItemHelper.isItemBurned(owner.getCurrentEquippedItem());
 				} else {
 					ltile.setInventorySlotContents(1, litemstack2);
 				}

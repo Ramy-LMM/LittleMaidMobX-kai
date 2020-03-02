@@ -33,16 +33,18 @@ public class LMM_ContainerInventory extends ContainerPlayer {
 		
 		LMM_InventoryLittleMaid linventory = pEntity.maidInventory;
 		owner = pEntity;
-		numRows = linventory.getSizeInventory() / 9;
+		numRows = 2;
 		littlemaidInventory = linventory;
 		littlemaidInventory.openInventory();
 		
+		//メイドの持ち物スロット
 		for (int ly = 0; ly < numRows; ly++) {
 			for (int lx = 0; lx < 9; lx++) {
-				addSlotToContainer(new Slot(linventory, lx + ly * 9, 8 + lx * 18, 76 + ly * 18));
+				addSlotToContainer(new Slot(linventory, lx + ly * 9 + 2, 8 + lx * 18, 76 + ly * 18));
 			}
 		}
 		
+		//プレイヤーのインベントリスロット
 		int lyoffset = (numRows - 4) * 18 + 59;
 		for (int ly = 0; ly < 3; ly++) {
 			for (int lx = 0; lx < 9; lx++) {
@@ -50,16 +52,18 @@ public class LMM_ContainerInventory extends ContainerPlayer {
 			}
 		}
 		
+		//プレイヤーの手持ちスロット
 		for (int lx = 0; lx < 9; lx++) {
 			addSlotToContainer(new Slot(iinventory, lx, 8 + lx * 18, 161 + lyoffset));
 		}
 		
+		//メイドの装備スロット
 		for (int j = 0; j < 4; j++) {
 //			int j1 = j + 1;
 //			addSlotToContainer(new SlotArmor(this, linventory, linventory.getSizeInventory() - 2 - j, 8, 8 + j * 18, j1));
 
 			final int armorIndex = j;
-			this.addSlotToContainer(new Slot(linventory, linventory.getSizeInventory() - 3 - j, 8 + (j / 2) * 72, 8 + (j % 2) * 18)
+			this.addSlotToContainer(new Slot(linventory, linventory.getSizeInventory() - 1 - j, 8 + (j / 2) * 72, 8 + (j % 2) * 18)
 			{
 				private static final String __OBFID = "CL_00001755";
 				/**
@@ -89,16 +93,10 @@ public class LMM_ContainerInventory extends ContainerPlayer {
 			});
 		}
 
-		this.addSlotToContainer(new Slot(linventory, linventory.getSizeInventory() - 1, 8, 8 + 36)
-		{
-			private static final String __OBFID = "CL_00001755";
-			public int getSlotStackLimit()
-			{
-				return 1;
-			}
-		});
+		//メイドの手持ちスロット
+		this.addSlotToContainer(new Slot(linventory, 0, 8, 8 + 36));
 		final LMM_EntityLittleMaid elm = pEntity;
-		this.addSlotToContainer(new Slot(linventory, linventory.getSizeInventory() - 2, 8 + 72, 8 + 36)
+		this.addSlotToContainer(new Slot(linventory, 1, 8 + 72, 8 + 36)
 		{
 			private static final String __OBFID = "CL_00001756";
 			public int getSlotStackLimit()
